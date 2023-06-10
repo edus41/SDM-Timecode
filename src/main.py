@@ -8,12 +8,12 @@ from player import *
 ##############################################
 
 if __name__ == "__main__":
-    gui_pipe, server_pipe = Pipe()
+    gui_pipe, network_pipe = Pipe()
     gui_pipe2, player_pipe = Pipe()
     
     server = Network(gui_pipe)
     player = Player(gui_pipe2)
-    gui = Process(target = UI, args = (server_pipe,player_pipe))
+    gui = Process(target = UI, args = (network_pipe,player_pipe))
     
     server.start()
     player.start()

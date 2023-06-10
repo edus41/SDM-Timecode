@@ -11,11 +11,11 @@ from tools import *
 
 class Network(Process):
 
-    def __init__(self, server_pipe):
+    def __init__(self, network_pipe):
         Process.__init__(self)
         
         # privates
-        self.pipe = server_pipe
+        self.pipe = network_pipe
         self.clients_ports = [37020, 37021, 37022, 37023, 37024, 37025, 37026, 37027, 37028, 37029]
         self.last_timecode = 0
         self.server = None

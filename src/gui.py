@@ -21,7 +21,7 @@ from functools import partial
     
 class GUI(QMainWindow):
     
-    def __init__(self,server_pipe,player_pipe):
+    def __init__(self,network_pipe,player_pipe):
         super(GUI,self).__init__()
         uic.loadUi("gui.ui",self)
         self.setWindowTitle("TEST")
@@ -82,7 +82,7 @@ class GUI(QMainWindow):
         
         # ----------------  PROCESS COMUNICATION INIT
         
-        self.server_pipe = server_pipe
+        self.server_pipe = network_pipe
         self.player_pipe = player_pipe
         self.recv_data = True
         self.recv_server_thread = GUI_Recv(self.recv_server_data)
@@ -469,9 +469,9 @@ class GUI(QMainWindow):
                 message_box.setInformativeText("Do you want to close the audio file?")
                 message_box.setIcon(QMessageBox.Question)
                 message_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-                wrapper = partial(self.center, message_box)
+                wrapper = partial(self.center_widget, message_box)
                 QtCore.QTimer.singleShot(0, wrapper)
-                self.set_message_box_style(message_box)
+                message_box.setStyleSheet(message_box_style)
                 message_box.setWindowFlags(message_box.windowFlags() | Qt.FramelessWindowHint)
                 reply = message_box.exec_()
 
@@ -524,33 +524,7 @@ class GUI(QMainWindow):
 
         return output_devices    
 
-    def set_message_box_style(self, message_box):#OK
-        message_box.setStyleSheet("""
-            QMessageBox {
-                background-color: #202020;
-                border-radius: 10px;
-                border: 1px solid #36BD74;
-            }
-
-            QMessageBox QLabel {
-                color: white;
-            }
-
-            QMessageBox QPushButton {
-                background-color: #36BD74;
-                color: white;
-                border-radius: 5px;
-                padding: 5px;
-                width: 60px;
-                height:10px;
-            }
-
-            QMessageBox QPushButton:hover {
-                background-color: #2A8C58;
-            }
-        """)
-
-    def center(self,window):#OK
+    def center_widget(self,window):#OK
         window.setGeometry(
             QtWidgets.QStyle.alignedRect(
                 QtCore.Qt.LeftToRight,
@@ -559,6 +533,7 @@ class GUI(QMainWindow):
                 self.geometry(),
             )
         )
+    
     # ---------------- PROCESS COMUNICATION
 
     def send_player_data(self):
@@ -683,6 +658,10 @@ class GUI(QMainWindow):
         else:
             self.remaning_tc.setText(str(secs_to_tc(self.audio_total_duration-self.timecode)))
 
+##############################################
+##---------------- THREAD ------------------##
+##############################################
+
 class GUI_Recv(QRunnable):
     
     def __init__(self, InFunc):
@@ -800,6 +779,31 @@ QPushButton:disabled {
     color: #606060;
 }
 """
+
+message_box_style="""
+            QMessageBox {
+                background-color: #202020;
+                border-radius: 10px;
+                border: 1px solid #36BD74;
+            }
+
+            QMessageBox QLabel {
+                color: white;
+            }
+
+            QMessageBox QPushButton {
+                background-color: #36BD74;
+                color: white;
+                border-radius: 5px;
+                padding: 5px;
+                width: 60px;
+                height:10px;
+            }
+
+            QMessageBox QPushButton:hover {
+                background-color: #2A8C58;
+            }
+        """
 
 ##############################################
 ##------------- EXEC FUNCTION --------------##
