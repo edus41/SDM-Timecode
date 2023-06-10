@@ -1,0 +1,811 @@
+
+import time
+import sys
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog,QMessageBox
+from PyQt5 import uic, QtCore,QtWidgets
+from PyQt5.QtCore import QRunnable, pyqtSlot, QThreadPool
+from PyQt5.QtCore import Qt
+from socket import *
+import numpy as np
+import soundfile as sf
+import sounddevice as sd
+import os
+import datetime
+from pydub import AudioSegment
+from tools import *
+from functools import partial
+
+##############################################
+##------------------- GUI ------------------##
+##############################################
+    
+class GUI(QMainWindow):
+    
+    def __init__(self,server_pipe,player_pipe):
+        super(GUI,self).__init__()
+        uic.loadUi("gui.ui",self)
+        self.setWindowTitle("TEST")
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)  
+        self.show()
+
+        # ---------------- GUI VARS
+        self.is_lock = False
+        self.is_pin = False
+        
+        # -- PLAYER VARS
+        
+        # PLAYER SEND
+        self.is_playing = False
+        self.time_start = 0
+        self.audio_data = None
+        self.sample_rate = None
+        
+        self.audio_devices = self.get_output_devices()
+        self.audio_device = next(iter(self.audio_devices))
+        self.paused_sample = 0
+        self.gain = 0.8
+        self.is_paused = False
+        
+        # PLAYER RECV
+        self.current_sample = 0
+        
+        # OTHERS
+        self.audio_total_duration = 0
+        
+        # -- SERVER VARS
+        # SERVER SEND
+        self.host = "192.168.0.9"
+        self.port = 44444
+        self.network_is_on = False
+        self.timecode = 0
+        self.mode = "master"
+        # SERVER RECV
+        self.online = False
+        self.server_error = None
+        self.clients = []
+        
+        
+        # SEND CONFIRMATIONS
+        self.last_is_playing = self.is_playing
+        self.last_time_start = self.time_start
+        self.last_audio_data = self.audio_data
+        self.last_sample_rate = self.sample_rate
+        self.last_audio_device = self.audio_device
+        self.last_gain = self.gain
+        self.last_paused_sample = self.paused_sample
+        self.last_host = self.host
+        self.last_port = self.port
+        self.last_network_is_on = self.network_is_on
+        self.last_timecode = self.timecode
+        self.last_mode = self.mode
+        
+        # ----------------  PROCESS COMUNICATION INIT
+        
+        self.server_pipe = server_pipe
+        self.player_pipe = player_pipe
+        self.recv_data = True
+        self.recv_server_thread = GUI_Recv(self.recv_server_data)
+        self.recv_player_thread = GUI_Recv(self.recv_player_data)
+        self.recv_server_pool = QThreadPool()
+        self.recv_player_pool = QThreadPool()
+        self.recv_server_pool.start(self.recv_server_thread)
+        self.recv_player_pool.start(self.recv_player_thread)
+        
+        # ---------------- FUNCTION ASSING
+        
+        # WINDOW
+        self.app_mini_button.clicked.connect(self.showMinimized)
+        self.app_close_button.clicked.connect(self.close_app)
+        self.main_frame_2.mouseMoveEvent = self.mouseMoveWindow
+        
+        # NETWORK AND MODE ASSING
+        self.master_button.clicked.connect(self.set_master_mode)
+        self.slave_button.clicked.connect(self.set_slave_mode)
+        self.connect_button.clicked.connect(self.set_network)
+        
+        # CONTROL BUTTONS
+        self.play_button.clicked.connect(self.play_pause)
+        self.stop_button.clicked.connect(self.stop)
+        self.clock_button.clicked.connect(self.tc_clock)
+        self.forward_button.clicked.connect(self.forward)
+        self.backward_button.clicked.connect(self.backward)
+        self.pin_button.clicked.connect(self.always_on_top)
+        self.lock_button.clicked.connect(self.lock)
+        
+        # AUDIO BUTTONS
+        self.audio_open_button.clicked.connect(self.open_audio_file)
+        self.audio_close_button.clicked.connect(self.close_audio_file)
+        self.audio_slider.valueChanged.connect(self.set_gain)
+        self.audio_output_combo_box.currentIndexChanged.connect(self.set_audio_device)
+        
+        # ---------------- VISUAL INIT
+        
+        if self.audio_devices != {}:
+            self.audio_output_combo_box.clear()
+            self.audio_output_combo_box.addItems(list(self.audio_devices.values()))
+        self.audio_slider.setValue(int(self.gain*100))
+        self.error_label.setVisible(False)
+        self.users_icon.setVisible(False)
+        self.users_label.setVisible(False)
+        
+    # ---------------- WINDOW CONFIG
+
+    def mousePressEvent(self, event):  # OK
+        self.oldPosition = event.globalPos()
+
+    def mouseMoveWindow(self, event):  # OK
+        if not self.isMaximized():
+            delta = QtCore.QPoint(event.globalPos() - self.oldPosition)
+            self.move(self.x() + delta.x(), self.y() + delta.y())
+            self.oldPosition = event.globalPos()
+
+    def close_app(self):#OK
+        self.recv_data = False
+        self.close()
+
+    # ---------------- BUTTONS FUNCTIONS
+
+    def set_master_mode(self):
+        self.master_button.setChecked(True)
+        self.slave_button.setChecked(False)
+            
+        if self.mode == "master":
+            return
+        
+        self.mode = "master"
+        self.timecode = 0
+        if self.is_playing:
+            pass
+            self.stop()
+        
+        self.play_button.setEnabled(True)
+        self.stop_button.setEnabled(True)
+        self.clock_button.setEnabled(True)
+        self.forward_button.setEnabled(True)
+        self.backward_button.setEnabled(True)
+        self.audio_open_button.setEnabled(True)
+        self.audio_close_button.setEnabled(True)
+        self.audio_slider.setEnabled(True)
+        self.audio_output_combo_box.setEnabled(True)
+        self.audio_open_button.setText("Open An Audio File")
+        
+        if self.network_is_on:
+            self.set_network()
+        else:
+            self.connect_button.setText("START SERVER")
+            self.send_server_data()
+        self.send_player_data()
+        
+    def set_slave_mode(self):#
+        self.master_button.setChecked(False)
+        self.slave_button.setChecked(True)
+        
+        if self.mode == "slave":
+            return
+        
+        self.mode="slave"
+        self.tc = "00:00:00:00"
+        
+        if self.is_playing:
+            pass
+            self.stop()
+
+        self.play_button.setEnabled(False)
+        self.stop_button.setEnabled(False)
+        self.clock_button.setEnabled(False)
+        self.forward_button.setEnabled(False)
+        self.backward_button.setEnabled(False)
+        self.audio_open_button.setEnabled(False)
+        self.audio_close_button.setEnabled(False)
+        self.audio_slider.setEnabled(False)
+        self.audio_output_combo_box.setEnabled(False)
+        self.audio_open_button.setText("Audio Player Is Disable In Slave Mode")
+        self.users_icon.setVisible(False)
+        self.users_label.setVisible(False)
+        
+        if self.network_is_on:
+            self.set_network()
+        else:
+            self.connect_button.setText("CONNECT")
+            self.send_server_data()
+        
+    def set_network(self):#
+        self.network_is_on = not self.network_is_on
+        
+        if not self.network_is_on:
+            if self.mode == "master":
+                self.connect_button.setText("START SERVER")
+            elif self.mode == "slave":
+                self.connect_button.setText("CONNECT")
+            self.connect_button.setStyleSheet(start_button_style)
+            self.users_icon.setVisible(False)
+            self.users_label.setVisible(False)
+            self.error_label.setVisible(False)
+            
+            self.ip_1.setEnabled(True)
+            self.ip_2.setEnabled(True)
+            self.ip_3.setEnabled(True)
+            self.ip_4.setEnabled(True)
+            
+        else:
+            
+            if not self.online and self.server_error is None:
+                self.connect_button.setText("CONNECTING")
+                self.connect_button.setStyleSheet(connecting_button_style)
+                #self.users_icon.setVisible(False)
+                #self.users_label.setVisible(False)
+                self.error_label.setVisible(False)
+                self.error_label.setText(self.server_error) 
+                
+            self.ip_1.setEnabled(False)
+            self.ip_2.setEnabled(False)
+            self.ip_3.setEnabled(False)
+            self.ip_4.setEnabled(False)
+            
+        self.host = f"{self.ip_1.text()}.{self.ip_2.text()}.{self.ip_3.text()}.{self.ip_4.text()}"
+        self.send_server_data()
+
+    def play_pause(self):#
+        self.is_playing = not self.is_playing
+    
+        if self.is_playing:
+            if self.is_paused:
+                self.time_start = time.time() - self.timecode
+                self.is_paused = None
+            elif not self.is_paused:
+                self.time_start = time.time()   
+        else:
+            self.paused_sample = self.current_sample
+            self.is_paused = True
+            
+        self.send_player_data()
+        
+    def stop(self):#
+        self.is_playing = False
+        self.is_paused = None
+        self.paused_sample = 0
+        self.play_button.setChecked(False)
+        self.timecode = 0
+        self.update_tc_labels()
+        self.send_player_data()
+
+    def tc_clock(self):#
+        if self.audio_data is None:
+            fecha_actual = datetime.datetime.now()
+            fecha_medianoche = fecha_actual.replace(hour=0, minute=0, second=0, microsecond=0)
+            diferencia = fecha_actual - fecha_medianoche
+            segundos_transcurridos = diferencia.total_seconds()
+            if self.is_playing:
+                self.time_start = time.time()-segundos_transcurridos
+            else:
+                self.time_start = time.time()-segundos_transcurridos
+                self.is_playing = True
+                self.play_button.setChecked(True)
+        
+        self.send_player_data()
+
+    def forward(self):#
+        if self.audio_data is not None: #WITH FILE TRACK
+            
+            posible_sample = int((10 + self.timecode) * self.sample_rate)
+            if posible_sample < len(self.audio_data):
+                self.paused_sample = posible_sample
+                self.timecode = self.timecode + 10
+            else:
+                self.paused_sample = 0
+                self.timecode = self.audio_total_duration
+                if self.is_playing:
+                    self.is_playing = False
+                    self.play_button.setChecked(False)
+            self.update_tc_labels()
+            
+            if not self.is_playing:
+                self.paused_sample = self.current_sample
+
+        elif self.audio_data is None: #WITHOUT FILE TRACK
+            
+            posible_time_start = (time.time()  - (self.timecode + 10)) 
+            
+            if self.is_playing:
+                
+                if (time.time() - posible_time_start) < 86400:
+                    self.time_start = self.time_start - 10
+                else:
+                    self.stop()
+                    self.timecode = 86400
+                    self.update_tc_labels()
+                    
+            elif not self.is_playing:
+                
+                if (time.time() - posible_time_start) < 86400:
+                    self.time_start = posible_time_start
+                    self.paused_time =  time.time()
+                    self.timecode = self.timecode + 10
+                    
+                else:
+                    self.paused_time = None
+                    self.timecode = 86400
+                self.update_tc_labels()
+                
+        self.send_player_data()
+
+    def backward(self):#
+        if self.audio_data is not None: #WITH FILE TRACK
+            
+            posible_sample=max(0,(self.current_sample  - (self.sample_rate*10)))
+            if posible_sample > 0:
+                self.paused_sample =  posible_sample
+                self.timecode = self.timecode -10
+            else:
+                self.paused_sample = 0
+                self.timecode = 0
+            self.update_tc_labels() 
+            
+            if not self.is_playing:
+                self.paused_sample = self.current_sample
+                
+        elif self.audio_data is None: #WITHOUT FILE TRACK
+            
+            posible_time_start = (time.time()  - (self.timecode - 10)) 
+            
+            if self.is_playing:
+
+                if (time.time() - posible_time_start) > 0:
+                    self.time_start = self.time_start + 10
+                    print("#")
+                else:
+                    self.stop()
+                    self.timecode = 0
+                    self.update_tc_labels()
+                    
+            elif not self.is_playing:
+
+                if (time.time() - posible_time_start) > 0:
+                    self.time_start = posible_time_start
+                    self.paused_time =  time.time()
+                    self.timecode = self.timecode - 10
+                    
+                else:
+                    self.paused_time = None
+                    self.timecode = 0
+                self.update_tc_labels()
+                
+        self.send_player_data()
+        
+    def always_on_top(self):#OK
+        self.is_pin= not self.is_pin
+        if self.windowFlags() & Qt.WindowStaysOnTopHint:
+            self.setWindowFlags(self.windowFlags() & ~Qt.WindowStaysOnTopHint)
+        else:
+            self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+        self.show()
+
+    def lock(self):#OK
+        
+        self.is_lock = not self.is_lock
+        if self.is_lock:
+            self.ltc_frame.setEnabled(False)
+            self.mtc_frame.setEnabled(False)
+            self.audio_frame.setEnabled(False)
+            self.play_button.setEnabled(False)
+            self.stop_button.setEnabled(False)
+            self.clock_button.setEnabled(False)
+            self.forward_button.setEnabled(False)
+            self.backward_button.setEnabled(False)
+            self.audio_slider.setEnabled(False)
+            self.connect_button.setEnabled(False)
+            self.ip_1.setEnabled(False)
+            self.ip_2.setEnabled(False)
+            self.ip_3.setEnabled(False)
+            self.ip_4.setEnabled(False)
+            self.master_button.setEnabled(False)
+            self.slave_button.setEnabled(False)
+            
+        else:
+            self.master_button.setEnabled(True)
+            self.slave_button.setEnabled(True)
+            self.ltc_frame.setEnabled(True)
+            self.mtc_frame.setEnabled(True)
+            self.connect_button.setEnabled(True)
+            
+            if not self.network_is_on:
+                self.ip_1.setEnabled(True)
+                self.ip_2.setEnabled(True)
+                self.ip_3.setEnabled(True)
+                self.ip_4.setEnabled(True)
+
+            if self.mode == "master":
+                self.audio_frame.setEnabled(True)
+                self.play_button.setEnabled(True)
+                self.stop_button.setEnabled(True)
+                self.clock_button.setEnabled(True)
+                self.forward_button.setEnabled(True)
+                self.backward_button.setEnabled(True)
+                self.audio_slider.setEnabled(True)
+                self.connect_button.setEnabled(True)
+
+    def open_audio_file(self):#
+        try:
+            file_path, _ = QFileDialog.getOpenFileName(None, 'Abrir archivo de audio', '', 'Archivos de audio (*.wav *.mp3)')
+
+            if self.is_playing:
+                self.stop()
+
+            if file_path:
+                _, file_extension = os.path.splitext(file_path)
+                file_extension = file_extension.lower()
+
+                if file_extension == '.wav':
+                    audio_data, sample_rate = sf.read(file_path)
+                elif file_extension == '.mp3':
+                    audio = AudioSegment.from_mp3(file_path)
+                    audio.export('temp.wav', format='wav')
+                    audio_data, sample_rate = sf.read('temp.wav')
+                    os.remove('temp.wav')
+                else:
+                    raise ValueError('Formato de archivo no válido.')
+
+                self.audio_total_duration = len(audio_data) / sample_rate
+                self.audio_data = audio_data
+                self.sample_rate = sample_rate
+
+                file_name = os.path.basename(file_path)
+                self.audio_open_button.setText(file_name.upper())
+
+                self.remaining_time = self.audio_total_duration
+                self.send_player_data()
+
+        except Exception as e:
+            print('[OPEN AUDIO ERROR]:', str(e))
+            self.close_audio_file()
+    
+    def close_audio_file(self):#
+        if self.audio_data is not None:
+            if self.is_playing:
+                message_box = QMessageBox(self)
+                message_box.setWindowTitle("Warning")
+                message_box.setText("Audio is playing!")
+                message_box.setInformativeText("Do you want to close the audio file?")
+                message_box.setIcon(QMessageBox.Question)
+                message_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                wrapper = partial(self.center, message_box)
+                QtCore.QTimer.singleShot(0, wrapper)
+                self.set_message_box_style(message_box)
+                message_box.setWindowFlags(message_box.windowFlags() | Qt.FramelessWindowHint)
+                reply = message_box.exec_()
+
+                if reply == QMessageBox.No:
+                    return
+                
+            self.stop()        
+            self.audio_data = None
+            self.sample_rate = None
+            self.stream = None
+            self.audio_open_button.setText("OPEN AN AUDIO FILE TO PLAY")
+            self.timecode = 0
+            self.update_tc_labels()
+            self.send_player_data()
+    
+    def set_gain(self):#
+        self.gain = self.audio_slider.value()/100
+        self.send_player_data()
+
+    def set_audio_device(self):#
+
+        if self.audio_devices != {}:
+            device_name = self.audio_output_combo_box.currentText()
+            for key, value in self.audio_devices.items():
+                if value == device_name:
+                    device_index = key
+                    self.audio_device = device_index
+                    break
+                
+        if self.is_playing:
+            self.play_pause()
+            time.sleep(0.01)
+            self.play_pause()
+
+    # ---------------- TOOLS
+    
+    def get_output_devices(self):#
+        devices = sd.query_devices()
+        output_devices = {}
+
+        for device in devices:
+            if (
+                device["max_output_channels"] > 0
+                and device["hostapi"] == 0
+                and device["name"] != "Asignador de sonido Microsoft - Output"
+            ):
+                index = device["index"]
+                name = device["name"]
+                output_devices[index] = name
+
+        return output_devices    
+
+    def set_message_box_style(self, message_box):#OK
+        message_box.setStyleSheet("""
+            QMessageBox {
+                background-color: #202020;
+                border-radius: 10px;
+                border: 1px solid #36BD74;
+            }
+
+            QMessageBox QLabel {
+                color: white;
+            }
+
+            QMessageBox QPushButton {
+                background-color: #36BD74;
+                color: white;
+                border-radius: 5px;
+                padding: 5px;
+                width: 60px;
+                height:10px;
+            }
+
+            QMessageBox QPushButton:hover {
+                background-color: #2A8C58;
+            }
+        """)
+
+    def center(self,window):#OK
+        window.setGeometry(
+            QtWidgets.QStyle.alignedRect(
+                QtCore.Qt.LeftToRight,
+                QtCore.Qt.AlignCenter,
+                window.size(),
+                self.geometry(),
+            )
+        )
+    # ---------------- PROCESS COMUNICATION
+
+    def send_player_data(self):
+        player_data_to_send = {}
+        
+        if self.last_is_playing != self.is_playing:
+            player_data_to_send['is_playing'] = self.is_playing
+            self.last_is_playing = self.is_playing
+            
+        if self.last_time_start != self.time_start:
+            player_data_to_send['time_start'] = self.time_start
+            self.last_time_start = self.time_start
+            
+        if not np.array_equal(self.last_audio_data, self.audio_data):
+            player_data_to_send['audio_data'] = self.audio_data
+            self.last_audio_data = self.audio_data
+            
+        if self.last_sample_rate != self.sample_rate:
+            player_data_to_send['sample_rate'] = self.sample_rate
+            self.last_sample_rate = self.sample_rate
+        
+        if self.last_audio_device != self.audio_device:
+            player_data_to_send['audio_device'] = self.audio_device
+            self.last_audio_device = self.audio_device        
+        
+        if self.last_gain != self.gain:
+            player_data_to_send['gain'] = self.gain
+            self.last_gain = self.gain        
+
+        if self.last_paused_sample != self.paused_sample:
+            player_data_to_send['paused_sample'] = self.paused_sample
+            self.last_paused_sample = self.paused_sample
+                    
+        if player_data_to_send:
+            self.player_pipe.send(player_data_to_send)
+
+    def send_server_data(self):#COMUNICATION
+        server_data_to_send = {}
+
+        if self.last_host != self.host:
+            server_data_to_send['host'] = self.host
+            self.last_host = self.host
+            
+        if self.last_port != self.port:
+            server_data_to_send['port'] = self.port
+            self.last_port = self.port
+            
+        if self.last_network_is_on != self.network_is_on:
+            server_data_to_send['network_is_on'] = self.network_is_on
+            self.last_network_is_on = self.network_is_on
+            
+        if self.last_timecode != self.timecode:
+            server_data_to_send['tc'] = self.timecode
+            self.last_timecode = self.timecode
+        
+        if self.last_mode != self.mode:
+            server_data_to_send['mode'] = self.mode
+            self.last_mode = self.mode   
+        
+        if server_data_to_send:
+            self.server_pipe.send(server_data_to_send)
+
+    def recv_server_data(self):#THREAD
+        
+        while self.recv_data:
+            
+            network_recv_data = self.server_pipe.recv()
+
+            if 'online' in network_recv_data:
+                self.online = network_recv_data["online"]
+            if 'error' in network_recv_data:
+                self.server_error = network_recv_data["error"]
+            if 'clients' in network_recv_data:
+                self.clients = network_recv_data["clients"]   
+            if 'timecode_recv' in network_recv_data:
+                self.timecode_recv = network_recv_data["timecode_recv"]     
+
+            if self.online and self.network_is_on:
+                if self.mode=="master":
+                    self.connect_button.setText("SENDING")
+                elif self.mode=="slave":
+                    self.connect_button.setText("LISTENING")
+                self.connect_button.setStyleSheet(online_button_style)
+                #if self.mode=="master":
+                #    self.users_icon.setVisible(True)
+                #    self.users_label.setVisible(True)
+                self.users_label.setText(str(len(self.clients)))
+                self.error_label.setVisible(False)
+                self.error_label.setText(self.server_error)
+                
+            elif self.network_is_on:
+                self.connect_button.setText("ERROR")
+                self.connect_button.setStyleSheet(offline_button_style)
+                #self.users_icon.setVisible(False)
+                #self.users_label.setVisible(False)
+                self.error_label.setVisible(True)
+                self.error_label.setText(self.server_error)
+
+    def recv_player_data(self):#THREAD
+        last_timecode = self.timecode
+        
+        while self.recv_data:
+            
+            player_recv_data = self.player_pipe.recv()
+            
+            if 'tc' in player_recv_data:
+                self.timecode = player_recv_data["tc"]
+            if 'current_sample' in player_recv_data:
+                self.current_sample = player_recv_data["current_sample"]   
+            
+            if last_timecode != self.timecode:
+                self.send_server_data()
+                last_timecode = self.timecode
+                
+            self.update_tc_labels()
+
+    def update_tc_labels(self):
+        self.tc_label.setText(str(secs_to_tc(self.timecode)))
+            
+        if self.audio_data is None:
+            self.remaning_tc.setText(str(secs_to_tc(86400-self.timecode)))
+        else:
+            self.remaning_tc.setText(str(secs_to_tc(self.audio_total_duration-self.timecode)))
+
+class GUI_Recv(QRunnable):
+    
+    def __init__(self, InFunc):
+        super(GUI_Recv, self).__init__()
+        self.Func = InFunc
+
+    @pyqtSlot(name="1")
+    def run(self):
+        self.Func()
+
+##############################################
+##---------------- STYLES ------------------##
+##############################################
+
+offline_button_style = """
+QPushButton {
+    background-color: transparent;
+    color: #9a0d0d;
+    border: none;
+    border-radius: 2px;
+    text-align: right;
+    padding: 0px 0px 0px 4px;
+}
+
+QPushButton:hover {
+    background-color: transparent;
+    color: #999999;
+}
+
+QPushButton:pressed {
+    background-color: transparent;
+    color: #AAAAAA;
+    border-style: inset;
+}
+
+QPushButton:disabled {
+    color: #606060;
+}
+"""
+
+connecting_button_style = """
+QPushButton {
+    background-color: transparent;
+    color: #BCB851;
+    border: none;
+    border-radius: 2px;
+    text-align: right;
+    padding: 0px 0px 0px 4px;
+}
+
+QPushButton:hover {
+    background-color: transparent;
+    color: #999999;
+}
+
+QPushButton:pressed {
+    background-color: transparent;
+    color: #AAAAAA;
+    border-style: inset;
+}
+
+QPushButton:disabled {
+    color: #606060;
+}
+"""
+
+online_button_style = """
+QPushButton {
+    background-color: transparent;
+    color: #36BD74;
+    border: none;
+    border-radius: 2px;
+    text-align: right;
+    padding: 0px 0px 0px 4px;
+}
+
+QPushButton:hover {
+    background-color: transparent;
+    color: #999999;
+}
+
+QPushButton:pressed {
+    background-color: transparent;
+    color: #AAAAAA;
+    border-style: inset;
+}
+
+QPushButton:disabled {
+    color: #606060;
+}
+"""
+
+start_button_style = """
+QPushButton {
+    background-color: transparent;
+    color: #707070;
+    border: none;
+    border-radius: 2px;
+    text-align: right;
+    padding: 0px 0px 0px 4px;
+}
+
+QPushButton:hover {
+    background-color: transparent;
+    color: #999999;
+}
+
+QPushButton:pressed {
+    background-color: transparent;
+    color: #AAAAAA;
+    border-style: inset;
+}
+
+QPushButton:disabled {
+    color: #606060;
+}
+"""
+
+##############################################
+##------------- EXEC FUNCTION --------------##
+##############################################
+
+def UI(server_pipe, player_pipe):
+    mainApp = QApplication(sys.argv)
+    app = GUI(server_pipe,player_pipe)
+    mainApp.exec_()   

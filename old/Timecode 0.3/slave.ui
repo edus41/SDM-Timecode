@@ -1,0 +1,2041 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1000</width>
+    <height>500</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1000</width>
+    <height>500</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1000</width>
+    <height>500</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QFrame[objectName=&quot;mainWindow&quot;]  {
+	background: #202020;
+	border-radius: 10;
+    border: 2px solid #36BD74;
+}</string>
+  </property>
+  <widget class="QWidget" name="main_frame">
+   <property name="styleSheet">
+    <string notr="true">QFrame[objectName=&quot;main_frame&quot;]  {
+	background: #202020;
+	border-radius: 10;
+    border:1px solid #36BD74;
+}</string>
+   </property>
+   <widget class="QFrame" name="main_frame_2">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1000</width>
+      <height>500</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame[objectName=&quot;main_frame_2&quot;]  {
+	background: #202020;
+	border-radius: 10;
+    border: 1px solid #36BD74;
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="tc_label">
+     <property name="geometry">
+      <rect>
+       <x>25</x>
+       <y>187</y>
+       <width>950</width>
+       <height>200</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans ExtraLight</family>
+       <pointsize>120</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: #36BD74;
+background: #202020;</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="text">
+      <string>00:00:00:00</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QFrame" name="ltc_frame">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>36</y>
+       <width>460</width>
+       <height>159</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: #272727;
+border-radius: 10</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <widget class="QCheckBox" name="ltc_switch">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>30</width>
+        <height>15</height>
+       </rect>
+      </property>
+      <property name="cursor">
+       <cursorShape>PointingHandCursor</cursorShape>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    QCheckBox {
+        width: 30px;
+        height: 15px;
+        background-color: #353535;
+        border-radius: 7px;
+        padding: 2px;
+    }
+    QCheckBox::indicator {
+        width: 11px	;
+        height: 11px;
+        background-color: #707070;
+        border-radius: 5px;
+    }
+    QCheckBox::indicator:checked {
+        background-color: #36BD74;;
+        margin-left: 16px;
+    }
+    QCheckBox::indicator:hover {
+        background-color: #99ff99;
+    }
+    QCheckBox::indicator:checked:hover {
+        background-color: #36BD74;
+    }
+    QCheckBox::indicator:checked:disabled {
+        background-color: #999999;
+    }</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="shortcut">
+       <string/>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
+      </property>
+      <property name="tristate">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="ltc_tc_label">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>47</y>
+        <width>460</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Light</family>
+        <pointsize>42</pointsize>
+        <italic>false</italic>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:grey</string>
+      </property>
+      <property name="text">
+       <string>00:00:00:00</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="ltc_output_combo_box">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>130</y>
+        <width>346</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QComboBox {
+    background-color: #202020;
+    color: grey;
+    border: 1px solid #606060;
+    border-radius: 4px;
+    padding: 2px;
+	padding-left:5px;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border-left-width: 1px;
+    border-left-color: #606060;
+    border-left-style: solid;
+    background: #333333;
+}
+
+QComboBox::drop-down::hover {
+    background: #404040;
+}
+
+QComboBox::drop-down::pressed {
+    background: #505050;
+}
+
+
+QComboBox::down-arrow {
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/PythonTimeCode/img/arrow2.png);
+    width: 10px;
+}
+
+QComboBox QAbstractItemView {
+	border-radius:0;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    background: #303030;
+    border: 1px solid #404040;
+    padding: 4px 4px 4px 4px;
+    color: grey;
+}
+
+QComboBox:disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+	padding-left:5px;
+}
+
+QComboBox::drop-down::disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 0px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+QComboBox::down-arrow::disabled {
+    image: none;
+    width: 10px;
+}
+
+</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>Select Output Device</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QComboBox" name="ltc_fps_combo_box">
+      <property name="geometry">
+       <rect>
+        <x>368</x>
+        <y>130</y>
+        <width>80</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QComboBox {
+    background-color: #202020;
+    color: grey;
+    border: 1px solid #606060;
+    border-radius: 4px;
+    padding: 2px;
+	padding-left:5px;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border-left-width: 1px;
+    border-left-color: #606060;
+    border-left-style: solid;
+    background: #333333;
+}
+
+QComboBox::drop-down::hover {
+    background: #404040;
+}
+
+QComboBox::drop-down::pressed {
+    background: #505050;
+}
+
+
+QComboBox::down-arrow {
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/PythonTimeCode/img/arrow2.png);
+    width: 10px;
+}
+
+QComboBox QAbstractItemView {
+	border-radius:0;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    background: #303030;
+    border: 1px solid #404040;
+    padding: 4px 4px 4px 4px;
+    color: grey;
+}
+
+QComboBox:disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+	padding-left:5px;
+}
+
+QComboBox::drop-down::disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 0px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+QComboBox::down-arrow::disabled {
+    image: none;
+    width: 10px;
+}
+
+</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>24 FPS</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>25 FPS</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>30 FPS</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QPushButton" name="ltc_offset_button">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>358</x>
+        <y>10</y>
+        <width>90</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Medium</family>
+        <pointsize>9</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+        background-color: #36BD74;
+        color: #202020;
+        border: none;
+        border-radius: 6px;
+    }
+    QPushButton:hover {
+        background-color: #225e3f;
+    }
+    QPushButton:pressed {
+        background-color: #888888;
+        border-style: inset;
+    }
+
+QPushButton:disabled {
+        background-color: #353535;
+        color: #202020;
+    }
+
+
+</string>
+      </property>
+      <property name="text">
+       <string>SET OFFSET</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="ltc_label">
+      <property name="geometry">
+       <rect>
+        <x>45</x>
+        <y>9</y>
+        <width>101</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Medium</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:#AAAAAA</string>
+      </property>
+      <property name="text">
+       <string>LTC SENDER</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="ltc_offset_label">
+      <property name="geometry">
+       <rect>
+        <x>358</x>
+        <y>30</y>
+        <width>90</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans ExtraLight</family>
+        <pointsize>10</pointsize>
+        <italic>false</italic>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: #AAAAAA;</string>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <property name="text">
+       <string>00:00:00:00</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::PlainText</enum>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="ltc_fps_label">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>112</y>
+        <width>25</width>
+        <height>15</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Light</family>
+        <pointsize>8</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:grey</string>
+      </property>
+      <property name="text">
+       <string>FPS</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="ltc_output_label">
+      <property name="geometry">
+       <rect>
+        <x>12</x>
+        <y>112</y>
+        <width>130</width>
+        <height>15</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Light</family>
+        <pointsize>8</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:grey</string>
+      </property>
+      <property name="text">
+       <string>OUTPUT DEVICE</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="ltc_hh_offset">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>238</x>
+        <y>11</y>
+        <width>25</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Light</family>
+        <pointsize>9</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }
+
+QLineEdit:disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+}</string>
+      </property>
+      <property name="maxLength">
+       <number>2</number>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="ltc_mm_offset">
+      <property name="geometry">
+       <rect>
+        <x>268</x>
+        <y>11</y>
+        <width>25</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Light</family>
+        <pointsize>9</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }
+
+QLineEdit:disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+}</string>
+      </property>
+      <property name="maxLength">
+       <number>2</number>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="ltc_ss_offset">
+      <property name="geometry">
+       <rect>
+        <x>298</x>
+        <y>11</y>
+        <width>25</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Light</family>
+        <pointsize>9</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }
+
+QLineEdit:disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+}</string>
+      </property>
+      <property name="maxLength">
+       <number>2</number>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="ltc_ff_offset">
+      <property name="geometry">
+       <rect>
+        <x>328</x>
+        <y>11</y>
+        <width>25</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Light</family>
+        <pointsize>9</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }
+
+QLineEdit:disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+}</string>
+      </property>
+      <property name="maxLength">
+       <number>2</number>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QFrame" name="mtc_frame">
+     <property name="geometry">
+      <rect>
+       <x>510</x>
+       <y>36</y>
+       <width>460</width>
+       <height>159</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: #272727;
+border-radius: 10</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <widget class="QCheckBox" name="mtc_switch">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>30</width>
+        <height>15</height>
+       </rect>
+      </property>
+      <property name="cursor">
+       <cursorShape>PointingHandCursor</cursorShape>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    QCheckBox {
+        width: 30px;
+        height: 15px;
+        background-color: #353535;
+        border-radius: 7px;
+        padding: 2px;
+    }
+    QCheckBox::indicator {
+        width: 11px	;
+        height: 11px;
+        background-color: #707070;
+        border-radius: 5px;
+    }
+    QCheckBox::indicator:checked {
+        background-color: #36BD74;;
+        margin-left: 16px;
+    }
+    QCheckBox::indicator:hover {
+        background-color: #99ff99;
+    }
+    QCheckBox::indicator:checked:hover {
+        background-color: #36BD74;
+    }
+    QCheckBox::indicator:checked:disabled {
+        background-color: #999999;
+    }
+
+
+
+</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="shortcut">
+       <string/>
+      </property>
+      <property name="tristate">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="mtc_tc_label">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>47</y>
+        <width>450</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Light</family>
+        <pointsize>42</pointsize>
+        <italic>false</italic>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:grey</string>
+      </property>
+      <property name="text">
+       <string>00:00:00:00</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="mtc_output_combo_box">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>130</y>
+        <width>346</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QComboBox {
+    background-color: #202020;
+    color: grey;
+    border: 1px solid #606060;
+    border-radius: 4px;
+    padding: 2px;
+	padding-left:5px;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border-left-width: 1px;
+    border-left-color: #606060;
+    border-left-style: solid;
+    background: #333333;
+}
+
+QComboBox::drop-down::hover {
+    background: #404040;
+}
+
+QComboBox::drop-down::pressed {
+    background: #505050;
+}
+
+
+QComboBox::down-arrow {
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/PythonTimeCode/img/arrow2.png);
+    width: 10px;
+}
+
+QComboBox QAbstractItemView {
+	border-radius:0;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    background: #303030;
+    border: 1px solid #404040;
+    padding: 4px 4px 4px 4px;
+    color: grey;
+}
+
+QComboBox:disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+	padding-left:5px;
+}
+
+QComboBox::drop-down::disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 0px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+QComboBox::down-arrow::disabled {
+    image: none;
+    width: 10px;
+}
+
+</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>Select Output Device</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QComboBox" name="mtc_fps_combo_box">
+      <property name="geometry">
+       <rect>
+        <x>368</x>
+        <y>130</y>
+        <width>80</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QComboBox {
+    background-color: #202020;
+    color: grey;
+    border: 1px solid #606060;
+    border-radius: 4px;
+    padding: 2px;
+	padding-left:5px;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border-left-width: 1px;
+    border-left-color: #606060;
+    border-left-style: solid;
+    background: #333333;
+}
+
+QComboBox::drop-down::hover {
+    background: #404040;
+}
+
+QComboBox::drop-down::pressed {
+    background: #505050;
+}
+
+
+QComboBox::down-arrow {
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/PythonTimeCode/img/arrow2.png);
+    width: 10px;
+}
+
+QComboBox QAbstractItemView {
+	border-radius:0;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    background: #303030;
+    border: 1px solid #404040;
+    padding: 4px 4px 4px 4px;
+    color: grey;
+}
+
+QComboBox:disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+	padding-left:5px;
+}
+
+QComboBox::drop-down::disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 0px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+QComboBox::down-arrow::disabled {
+    image: none;
+    width: 10px;
+}
+
+</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>24 FPS</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>25 FPS</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>30 FPS</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QPushButton" name="mtc_offset_button">
+      <property name="geometry">
+       <rect>
+        <x>358</x>
+        <y>10</y>
+        <width>90</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Medium</family>
+        <pointsize>9</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+        background-color: #36BD74;
+        color: #202020;
+        border: none;
+        border-radius: 6px;
+    }
+    QPushButton:hover {
+        background-color: #225e3f;
+    }
+    QPushButton:pressed {
+        background-color: #888888;
+        border-style: inset;
+    }
+
+QPushButton:disabled {
+        background-color: #353535;
+        color: #202020;
+    }
+
+
+</string>
+      </property>
+      <property name="text">
+       <string>SET OFFSET</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="mtc_label">
+      <property name="geometry">
+       <rect>
+        <x>45</x>
+        <y>9</y>
+        <width>101</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Medium</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:#AAAAAA</string>
+      </property>
+      <property name="text">
+       <string>MTC SENDER</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="mtc_offset_label">
+      <property name="geometry">
+       <rect>
+        <x>358</x>
+        <y>30</y>
+        <width>90</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans ExtraLight</family>
+        <pointsize>10</pointsize>
+        <italic>false</italic>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: #AAAAAA;</string>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <property name="text">
+       <string>00:00:00:00</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::PlainText</enum>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="mtc_fps_label">
+      <property name="geometry">
+       <rect>
+        <x>362</x>
+        <y>112</y>
+        <width>25</width>
+        <height>15</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Light</family>
+        <pointsize>8</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:grey</string>
+      </property>
+      <property name="text">
+       <string>FPS</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="mtc_output_label">
+      <property name="geometry">
+       <rect>
+        <x>12</x>
+        <y>112</y>
+        <width>130</width>
+        <height>15</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Light</family>
+        <pointsize>8</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:grey</string>
+      </property>
+      <property name="text">
+       <string>OUTPUT DEVICE</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="mtc_hh_offset">
+      <property name="geometry">
+       <rect>
+        <x>238</x>
+        <y>11</y>
+        <width>25</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Light</family>
+        <pointsize>9</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }
+
+QLineEdit:disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+}</string>
+      </property>
+      <property name="maxLength">
+       <number>2</number>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="mtc_mm_offset">
+      <property name="geometry">
+       <rect>
+        <x>268</x>
+        <y>11</y>
+        <width>25</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Light</family>
+        <pointsize>9</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }
+
+QLineEdit:disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+}</string>
+      </property>
+      <property name="maxLength">
+       <number>2</number>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="mtc_ss_offset">
+      <property name="geometry">
+       <rect>
+        <x>298</x>
+        <y>11</y>
+        <width>25</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Light</family>
+        <pointsize>9</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }
+
+QLineEdit:disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+}</string>
+      </property>
+      <property name="maxLength">
+       <number>2</number>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="mtc_ff_offset">
+      <property name="geometry">
+       <rect>
+        <x>328</x>
+        <y>11</y>
+        <width>25</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>IBM Plex Sans Light</family>
+        <pointsize>9</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }
+
+QLineEdit:disabled  {
+    background-color:  transparent;
+    color: grey;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+}</string>
+      </property>
+      <property name="maxLength">
+       <number>2</number>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QLabel" name="error_label">
+     <property name="geometry">
+      <rect>
+       <x>788</x>
+       <y>530</y>
+       <width>95</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Medium</family>
+       <pointsize>8</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color:#9a0d0d;
+background:#202020;</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="ip_1">
+     <property name="geometry">
+      <rect>
+       <x>790</x>
+       <y>460</y>
+       <width>41</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Light</family>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }</string>
+     </property>
+     <property name="text">
+      <string>127</string>
+     </property>
+     <property name="maxLength">
+      <number>3</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="ip_2">
+     <property name="geometry">
+      <rect>
+       <x>835</x>
+       <y>460</y>
+       <width>41</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Light</family>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }</string>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+     <property name="maxLength">
+      <number>3</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="ip_3">
+     <property name="geometry">
+      <rect>
+       <x>880</x>
+       <y>460</y>
+       <width>41</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Light</family>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }</string>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+     <property name="maxLength">
+      <number>3</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="ip_4">
+     <property name="geometry">
+      <rect>
+       <x>925</x>
+       <y>460</y>
+       <width>41</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Light</family>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }</string>
+     </property>
+     <property name="text">
+      <string>1</string>
+     </property>
+     <property name="maxLength">
+      <number>3</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="hh_label">
+     <property name="geometry">
+      <rect>
+       <x>29</x>
+       <y>368</y>
+       <width>235</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans ExtraLight</family>
+       <pointsize>12</pointsize>
+       <italic>false</italic>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: #AAAAAA;
+background-color: #202020;</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="text">
+      <string>HOURS</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="mm_label">
+     <property name="geometry">
+      <rect>
+       <x>264</x>
+       <y>368</y>
+       <width>235</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans ExtraLight</family>
+       <pointsize>12</pointsize>
+       <italic>false</italic>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: #AAAAAA;
+background-color: #202020;</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="text">
+      <string>MINUTES</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="ss_label">
+     <property name="geometry">
+      <rect>
+       <x>499</x>
+       <y>368</y>
+       <width>235</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans ExtraLight</family>
+       <pointsize>12</pointsize>
+       <italic>false</italic>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: #AAAAAA;
+background-color: #202020;</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="text">
+      <string>SECONDS</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="ff_label">
+     <property name="geometry">
+      <rect>
+       <x>734</x>
+       <y>368</y>
+       <width>235</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans ExtraLight</family>
+       <pointsize>12</pointsize>
+       <italic>false</italic>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: #AAAAAA;
+background-color: #202020;</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="text">
+      <string>FRAMES</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="titule_label">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>14</y>
+       <width>131</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans</family>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <italic>false</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLabel {
+                background-color: transparent;
+                width: 150px;
+                height: 20px;
+
+                color: #404040;
+            }</string>
+     </property>
+     <property name="text">
+      <string>SDM TIMECODE APP</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="app_close_button">
+     <property name="geometry">
+      <rect>
+       <x>947</x>
+       <y>12</y>
+       <width>21</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial Black</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <italic>false</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+        background-color: transparent;
+        color: #454545;
+        border: none;
+        border-radius: 2px;
+    }
+    QPushButton:hover {
+        background-color: #888888;
+		color: #202020;
+    }
+    QPushButton:pressed {
+        background-color: #AAAAAA;
+        border-style: inset;
+    }</string>
+     </property>
+     <property name="text">
+      <string>X</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="app_mini_button">
+     <property name="geometry">
+      <rect>
+       <x>924</x>
+       <y>12</y>
+       <width>20</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Artifakt Element Black</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <italic>false</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+        background-color: transparent;
+        color: #454545;
+        border: none;
+        border-radius: 2px;
+    }
+    QPushButton:hover {
+        background-color: #888888;
+		color: #202020;
+    }
+    QPushButton:pressed {
+        background-color: #AAAAAA;
+        border-style: inset;
+    }</string>
+     </property>
+     <property name="text">
+      <string>   ̶</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>410</y>
+       <width>241</width>
+       <height>82</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="lock_button">
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+	background-color: transparent;
+}
+QPushButton:hover {
+	background-color: rgba(25,25,25,50%);
+	padding:5px;
+	border: none;
+	border-radius:7px;
+}
+QPushButton:pressed {
+	background-color: rgba(50,50,50,50%);
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>../PythonTimeCode/img/block_open.png</normaloff>
+          <normalon>../PythonTimeCode/img/block_closed.png</normalon>../PythonTimeCode/img/block_open.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pin_button">
+        <property name="minimumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+	background-color: transparent;
+}
+QPushButton:hover {
+	background-color: rgba(25,25,25,50%);
+	padding:5px;
+	border: none;
+	border-radius:7px;
+}
+QPushButton:pressed {
+	background-color: rgba(50,50,50,50%);
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>../PythonTimeCode/img/pin_off.png</normaloff>
+          <normalon>../PythonTimeCode/img/pin_on.png</normalon>../PythonTimeCode/img/pin_off.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QPushButton" name="ltc_offset_button_3">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>790</x>
+       <y>435</y>
+       <width>175</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Medium</family>
+       <pointsize>9</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+        background-color: #36BD74;
+        color: #202020;
+        border: none;
+        border-radius: 6px;
+    }
+    QPushButton:hover {
+        background-color: #225e3f;
+    }
+    QPushButton:pressed {
+        background-color: #888888;
+        border-style: inset;
+    }
+
+QPushButton:disabled {
+        background-color: #353535;
+        color: #202020;
+    }
+
+
+</string>
+     </property>
+     <property name="text">
+      <string>CONNECT TO SERVER</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="ss_label_3">
+     <property name="geometry">
+      <rect>
+       <x>501</x>
+       <y>450</y>
+       <width>235</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans ExtraLight</family>
+       <pointsize>16</pointsize>
+       <italic>false</italic>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: #A52F2F;
+background-color: #202020;</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="text">
+      <string>00:00:00:00</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="mm_label_2">
+     <property name="geometry">
+      <rect>
+       <x>266</x>
+       <y>420</y>
+       <width>235</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans ExtraLight</family>
+       <pointsize>12</pointsize>
+       <italic>false</italic>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: #BCB851;
+background-color: #202020;</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="text">
+      <string>ELAPSED TIME</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="ss_label_2">
+     <property name="geometry">
+      <rect>
+       <x>501</x>
+       <y>420</y>
+       <width>235</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans ExtraLight</family>
+       <pointsize>12</pointsize>
+       <italic>false</italic>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: #A52F2F;
+background-color: #202020;</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="text">
+      <string>REMAINING TIME</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="mm_label_3">
+     <property name="geometry">
+      <rect>
+       <x>266</x>
+       <y>450</y>
+       <width>235</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans ExtraLight</family>
+       <pointsize>16</pointsize>
+       <italic>false</italic>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: #BCB851;
+background-color: #202020;</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="text">
+      <string>00:00:00:00</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <action name="actionsdf">
+   <property name="text">
+    <string>sdf</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
