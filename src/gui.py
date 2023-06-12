@@ -13,6 +13,7 @@ import datetime
 from pydub import AudioSegment
 from tools import *
 from functools import partial
+from get_nets import get_nets
 
 ##############################################
 ##------------------- GUI ------------------##
@@ -59,6 +60,7 @@ class GUI(QMainWindow):
         
         # -- SERVER VARS
         # SERVER SEND
+        self.nets = get_nets()
         self.host = "192.168.0.9"
         self.port = 44444
         self.network_is_on = False
@@ -198,6 +200,9 @@ class GUI(QMainWindow):
         else:
             self.connect_button.setText("START SERVER")
 
+        self.ltc_pipe.send({"is_playing":False})
+        self.mtc_pipe.send({"is_playing":False})
+        
     def set_slave_mode(self): #TEST
         self.master_button.setChecked(False)
         self.slave_button.setChecked(True)
@@ -229,6 +234,9 @@ class GUI(QMainWindow):
             self.set_network()
         else:
             self.connect_button.setText("CONNECT")
+        
+        self.ltc_pipe.send({"is_playing":True})
+        self.mtc_pipe.send({"is_playing":True})
 
     def set_network(self): #TEST
         self.network_is_on = not self.network_is_on
@@ -238,7 +246,7 @@ class GUI(QMainWindow):
                 self.connect_button.setText("START SERVER")
             elif self.mode == "slave":
                 self.connect_button.setText("CONNECT")
-            self.connect_button.setStyleSheet(start_button_style)
+            #self.connect_button.setStyleSheet(start_button_style)
             self.users_icon.setVisible(False)
             self.users_label.setVisible(False)
             self.error_label.setVisible(False)
@@ -252,7 +260,7 @@ class GUI(QMainWindow):
             
             if not self.online and self.server_error is None:
                 self.connect_button.setText("CONNECTING")
-                self.connect_button.setStyleSheet(connecting_button_style)
+                #self.connect_button.setStyleSheet(connecting_button_style)
                 #self.users_icon.setVisible(False)
                 #self.users_label.setVisible(False)
                 self.error_label.setVisible(False)
@@ -484,7 +492,7 @@ class GUI(QMainWindow):
                 message_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
                 wrapper = partial(self.center_widget, message_box)
                 QtCore.QTimer.singleShot(0, wrapper)
-                message_box.setStyleSheet(message_box_style)
+                #message_box.setStyleSheet(message_box_style)
                 message_box.setWindowFlags(message_box.windowFlags() | Qt.FramelessWindowHint)
                 reply = message_box.exec_()
 
@@ -522,14 +530,11 @@ class GUI(QMainWindow):
     def set_ltc_on(self): #TEST
         self.ltc_is_on = not self.ltc_is_on
         if self.ltc_is_on:
+            self.ltc_tc_label.setText(secs_to_tc(self.ltc_offset+self.timecode,self.ltc_fps))
             self.ltc_tc_label.setStyleSheet(f"color: #36BD74;")
-            self.ltc_output_combo_box.setEnabled(False)
-            self.ltc_fps_combo_box.setEnabled(False)
         else:
             self.ltc_tc_label.setText(secs_to_tc(self.ltc_offset,self.ltc_fps))
             self.ltc_tc_label.setStyleSheet(f"color: grey;")
-            self.ltc_output_combo_box.setEnabled(True)
-            self.ltc_fps_combo_box.setEnabled(True)
 
     def set_ltc_offset(self): #TEST
         
@@ -588,14 +593,11 @@ class GUI(QMainWindow):
     def set_mtc_on(self): #TEST
         self.mtc_is_on = not self.mtc_is_on
         if self.mtc_is_on:
+            self.ltc_tc_label.setText(secs_to_tc(self.mtc_offset + self.timecode,self.mtc_fps))
             self.mtc_tc_label.setStyleSheet(f"color: #36BD74;")
-            self.mtc_output_combo_box.setEnabled(False)
-            self.mtc_fps_combo_box.setEnabled(False)
         else:
             self.mtc_tc_label.setText(secs_to_tc(self.mtc_offset,self.mtc_fps))
             self.mtc_tc_label.setStyleSheet(f"color: grey;")
-            self.mtc_output_combo_box.setEnabled(True)
-            self.mtc_fps_combo_box.setEnabled(True)
 
     def set_mtc_offset(self): #TEST  
         def errase_values():
@@ -790,8 +792,9 @@ class GUI(QMainWindow):
             
             if self.last_ltc_is_on != self.ltc_is_on:
                 data_to_send['ltc_is_on'] = self.ltc_is_on
-                self.ltc_pipe.send(data_to_send)           
+                self.ltc_pipe.send(data_to_send)          
                 self.last_ltc_is_on = self.ltc_is_on  
+                print("SIP")
                 
             if self.last_ltc_output_device != self.ltc_output_device:
                 data_to_send['ltc_output_device'] = self.ltc_output_device
@@ -845,7 +848,6 @@ class GUI(QMainWindow):
             if 'timecode_recv' in network_recv_data and self.mode == "slave":
                 self.timecode = network_recv_data["timecode_recv"]     
 
-        
             if last_timecode != self.timecode and self.mode == "slave":
                 last_timecode = self.timecode
                 self.update_tc_labels()
@@ -855,7 +857,7 @@ class GUI(QMainWindow):
                     self.connect_button.setText("SENDING")
                 elif self.mode=="slave":
                     self.connect_button.setText("LISTENING")
-                self.connect_button.setStyleSheet(online_button_style)
+                #self.connect_button.setStyleSheet(online_button_style)
                 #if self.mode=="master":
                 #    self.users_icon.setVisible(True)
                 #    self.users_label.setVisible(True)
@@ -865,7 +867,7 @@ class GUI(QMainWindow):
                 
             elif self.network_is_on:
                 self.connect_button.setText("ERROR")
-                self.connect_button.setStyleSheet(offline_button_style)
+                #self.connect_button.setStyleSheet(offline_button_style)
                 #self.users_icon.setVisible(False)
                 #self.users_label.setVisible(False)
                 self.error_label.setVisible(True)
@@ -873,7 +875,6 @@ class GUI(QMainWindow):
 
     def recv_player_data(self): #THREAD
         last_timecode = self.timecode
-        
         while self.com_enable:
             
             player_recv_data = self.player_pipe.recv()

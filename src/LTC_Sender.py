@@ -118,7 +118,6 @@ class LTC_Sender(Process):
     def recive_data(self):
         while True:
             recive_data = self.pipe.recv()
-            
             if 'is_playing' in recive_data:
                 self.is_playing = recive_data["is_playing"]
                 

@@ -147,7 +147,6 @@ class Network(Process):
                             self.client = None
                             self.send_data()
                             time.sleep(1)      
-
                 if self.client is not None:
                     self.client.close()
                     self.client = None  

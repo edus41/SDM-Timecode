@@ -39,7 +39,6 @@ class MTC_Sender(Process):
             while self.mtc_is_on and self.is_playing:
                 frames_totales = int(self.timecode * self.mtc_fps)
                 if last_frames_totales != frames_totales:
-                    print(frames_totales)
                     self.mtc_timecode = self.timecode + self.mtc_offset
                     self.mtc_tc = secs_to_tc(self.mtc_timecode, self.mtc_fps)
                     self.sendMTC(self.mtc_tc)

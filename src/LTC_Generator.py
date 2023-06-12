@@ -1,5 +1,4 @@
 import numpy as np
-from timecode import Timecode
 import time
 
 
