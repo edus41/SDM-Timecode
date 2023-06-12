@@ -597,7 +597,7 @@ QComboBox::drop-down::pressed {
 
 
 QComboBox::down-arrow {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/PythonTimeCode/img/arrow2.png);
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/arrow2.png);
     width: 10px;
 }
 
@@ -686,7 +686,7 @@ QComboBox::drop-down::pressed {
 
 
 QComboBox::down-arrow {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/PythonTimeCode/img/arrow2.png);
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/arrow2.png);
     width: 10px;
 }
 
@@ -1201,7 +1201,7 @@ QComboBox::drop-down::pressed {
 
 
 QComboBox::down-arrow {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/PythonTimeCode/img/arrow2.png);
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/arrow2.png);
     width: 10px;
 }
 
@@ -1290,7 +1290,7 @@ QComboBox::drop-down::pressed {
 
 
 QComboBox::down-arrow {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/PythonTimeCode/img/arrow2.png);
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/arrow2.png);
     width: 10px;
 }
 

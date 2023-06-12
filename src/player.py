@@ -6,7 +6,7 @@ from socket import *
 import numpy as np
 import sounddevice as sd
 from tools import *
-
+from LTC_Generator import make_ltc_audio
 
 ##############################################
 ##----------------- PLAYER -----------------##
@@ -36,10 +36,12 @@ class Player(Process):
         # SEND COMPARISON
         self.last_current_sample = self.current_sample
         self.last_tc = self.timecode
-
+        self.frames_anteriores = 0 #TEST LTC
+        
     def run(self):
         self.recive_thread = Thread(target = self.recive_data)
         self.recive_thread.start()
+        
         while True:
             if self.is_playing:
                 if self.sample_rate != None:
@@ -125,3 +127,30 @@ class Player(Process):
         if data_to_send:
             self.pipe.send(data_to_send)
             
+
+
+
+        
+
+def play_ltc(self):
+    stream = sd.OutputStream(callback=self.audiocallback, channels=1, samplerate=44100,device=self.audio_device,)
+    with stream:
+        while True:
+            time.sleep(1/25)
+
+def audiocallback(self, outdata, frames, time, status):
+    if self.is_playing and self.timecode < 86399.9999:
+        frames_actuales = int(self.timecode * 25)
+        
+        if frames_actuales != self.frames_anteriores:
+            ltc_tc = secs_to_tc(self.timecode, 25)
+            print(ltc_tc)
+            ltc_audio_data = make_ltc_audio(ltc_tc)
+            audio_array = np.frombuffer(ltc_audio_data, dtype = np.int16)
+            audio_array = np.expand_dims(audio_array, axis = 1)  # Agregar una dimensión
+            outdata[:frames] = audio_array[:frames]
+            
+        self.frames_anteriores = frames_actuales
+    else:
+        silence = np.zeros((frames, 1), dtype=np.int16)
+        outdata[:frames] = silence

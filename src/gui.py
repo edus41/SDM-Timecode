@@ -1,4 +1,3 @@
-
 import time
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog,QMessageBox
@@ -18,23 +17,28 @@ from functools import partial
 ##############################################
 ##------------------- GUI ------------------##
 ##############################################
-    
+
 class GUI(QMainWindow):
-    
-    def __init__(self,network_pipe,player_pipe):
+
+    def __init__(self,network_pipe,player_pipe,ltc_pipe,mtc_pipe):#TEST
         super(GUI,self).__init__()
         uic.loadUi("gui.ui",self)
         self.setWindowTitle("TEST")
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)  
+        self.var_init()
+        self.thread_pipes_init(network_pipe,player_pipe,ltc_pipe,mtc_pipe)
+        self.func_init()
+        self.visual_init()
         self.show()
 
-        # ---------------- GUI VARS
+    # ---------------- INIT CONFIG
+
+    def var_init(self): #TEST
         self.is_lock = False
         self.is_pin = False
         
         # -- PLAYER VARS
-        
         # PLAYER SEND
         self.is_playing = False
         self.time_start = 0
@@ -65,46 +69,48 @@ class GUI(QMainWindow):
         self.server_error = None
         self.clients = []
         
-        
-        # SEND CONFIRMATIONS
-        self.last_is_playing = self.is_playing
-        self.last_time_start = self.time_start
-        self.last_audio_data = self.audio_data
-        self.last_sample_rate = self.sample_rate
-        self.last_audio_device = self.audio_device
-        self.last_gain = self.gain
-        self.last_paused_sample = self.paused_sample
-        self.last_host = self.host
-        self.last_port = self.port
-        self.last_network_is_on = self.network_is_on
-        self.last_timecode = self.timecode
-        self.last_mode = self.mode
-        
-        # ----------------  PROCESS COMUNICATION INIT
-        
+        # -- LTC SENDER
+        # LTC SEND
+        self.ltc_output_device = 0
+        self.ltc_fps = 24
+        self.ltc_offset = 0
+        self.ltc_is_on = False
+
+        # -- MTC SENDER
+        # MTC SEND
+        self.mtc_output_device = 0
+        self.mtc_fps = 24
+        self.mtc_offset = 0
+        self.mtc_is_on = False
+
+    def thread_pipes_init(self,network_pipe,player_pipe,ltc_pipe,mtc_pipe):#TEST
         self.server_pipe = network_pipe
         self.player_pipe = player_pipe
-        self.recv_data = True
+        self.ltc_pipe = ltc_pipe
+        self.mtc_pipe = mtc_pipe
+        self.com_enable = True
         self.recv_server_thread = GUI_Recv(self.recv_server_data)
         self.recv_player_thread = GUI_Recv(self.recv_player_data)
+        self.send_thread = GUI_Recv(self.send_data_to_process)
         self.recv_server_pool = QThreadPool()
         self.recv_player_pool = QThreadPool()
+        self.send_pool = QThreadPool()
         self.recv_server_pool.start(self.recv_server_thread)
         self.recv_player_pool.start(self.recv_player_thread)
-        
-        # ---------------- FUNCTION ASSING
-        
-        # WINDOW
+        self.send_pool.start(self.send_thread)
+
+    def func_init(self): #TEST
+        # WINDOW BUTTONS ASSING
         self.app_mini_button.clicked.connect(self.showMinimized)
         self.app_close_button.clicked.connect(self.close_app)
         self.main_frame_2.mouseMoveEvent = self.mouseMoveWindow
         
-        # NETWORK AND MODE ASSING
+        # NETWORK AND MODE BUTTONS ASSING
         self.master_button.clicked.connect(self.set_master_mode)
         self.slave_button.clicked.connect(self.set_slave_mode)
         self.connect_button.clicked.connect(self.set_network)
         
-        # CONTROL BUTTONS
+        # CONTROL BUTTONS ASSING
         self.play_button.clicked.connect(self.play_pause)
         self.stop_button.clicked.connect(self.stop)
         self.clock_button.clicked.connect(self.tc_clock)
@@ -113,40 +119,57 @@ class GUI(QMainWindow):
         self.pin_button.clicked.connect(self.always_on_top)
         self.lock_button.clicked.connect(self.lock)
         
-        # AUDIO BUTTONS
+        # AUDIO BUTTONS ASSING
         self.audio_open_button.clicked.connect(self.open_audio_file)
         self.audio_close_button.clicked.connect(self.close_audio_file)
         self.audio_slider.valueChanged.connect(self.set_gain)
         self.audio_output_combo_box.currentIndexChanged.connect(self.set_audio_device)
         
-        # ---------------- VISUAL INIT
+        #LTC BUTTONS ASSING
+        self.ltc_switch.clicked.connect(self.set_ltc_on)
+        self.ltc_offset_button.clicked.connect(self.set_ltc_offset)
+        self.ltc_output_combo_box.currentIndexChanged.connect(self.set_ltc_output)
+        self.ltc_fps_combo_box.currentIndexChanged.connect(self.set_ltc_fps)
         
+        # MTC BUTTONS ASSING
+        self.mtc_switch.stateChanged.connect(self.set_mtc_on)
+        self.mtc_offset_button.clicked.connect(self.set_mtc_offset)
+        self.mtc_output_combo_box.currentIndexChanged.connect(self.set_mtc_output)
+        self.mtc_fps_combo_box.currentIndexChanged.connect(self.set_mtc_fps)
+
+    def visual_init(self): #TEST
         if self.audio_devices != {}:
+            list_audio_devices = list(self.audio_devices.values())
             self.audio_output_combo_box.clear()
-            self.audio_output_combo_box.addItems(list(self.audio_devices.values()))
+            self.audio_output_combo_box.addItems(list_audio_devices)
+            self.ltc_output_combo_box.clear()
+            self.ltc_output_combo_box.addItems(list_audio_devices)
         self.audio_slider.setValue(int(self.gain*100))
         self.error_label.setVisible(False)
         self.users_icon.setVisible(False)
         self.users_label.setVisible(False)
-        
+        self.recv_mtc_data()
+
     # ---------------- WINDOW CONFIG
 
-    def mousePressEvent(self, event):  # OK
+    def mousePressEvent(self, event):#
         self.oldPosition = event.globalPos()
 
-    def mouseMoveWindow(self, event):  # OK
+    def mouseMoveWindow(self, event):#
         if not self.isMaximized():
             delta = QtCore.QPoint(event.globalPos() - self.oldPosition)
             self.move(self.x() + delta.x(), self.y() + delta.y())
             self.oldPosition = event.globalPos()
 
-    def close_app(self):#OK
-        self.recv_data = False
+    def close_app(self): #TEST
+        self.com_enable = False
         self.close()
 
     # ---------------- BUTTONS FUNCTIONS
 
-    def set_master_mode(self):
+    # NETWORK AND MODE BUTTONS FUNCTIONS
+
+    def set_master_mode(self): #TEST
         self.master_button.setChecked(True)
         self.slave_button.setChecked(False)
             
@@ -174,10 +197,8 @@ class GUI(QMainWindow):
             self.set_network()
         else:
             self.connect_button.setText("START SERVER")
-            self.send_server_data()
-        self.send_player_data()
-        
-    def set_slave_mode(self):#
+
+    def set_slave_mode(self): #TEST
         self.master_button.setChecked(False)
         self.slave_button.setChecked(True)
         
@@ -208,9 +229,8 @@ class GUI(QMainWindow):
             self.set_network()
         else:
             self.connect_button.setText("CONNECT")
-            self.send_server_data()
-        
-    def set_network(self):#
+
+    def set_network(self): #TEST
         self.network_is_on = not self.network_is_on
         
         if not self.network_is_on:
@@ -244,9 +264,10 @@ class GUI(QMainWindow):
             self.ip_4.setEnabled(False)
             
         self.host = f"{self.ip_1.text()}.{self.ip_2.text()}.{self.ip_3.text()}.{self.ip_4.text()}"
-        self.send_server_data()
 
-    def play_pause(self):#
+    # CONTROLS BUTTONS FUNCTIONS
+
+    def play_pause(self): #TEST
         self.is_playing = not self.is_playing
     
         if self.is_playing:
@@ -258,19 +279,16 @@ class GUI(QMainWindow):
         else:
             self.paused_sample = self.current_sample
             self.is_paused = True
-            
-        self.send_player_data()
-        
-    def stop(self):#
+
+    def stop(self): #TEST
         self.is_playing = False
         self.is_paused = None
         self.paused_sample = 0
         self.play_button.setChecked(False)
         self.timecode = 0
         self.update_tc_labels()
-        self.send_player_data()
 
-    def tc_clock(self):#
+    def tc_clock(self): #TEST
         if self.audio_data is None:
             fecha_actual = datetime.datetime.now()
             fecha_medianoche = fecha_actual.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -282,10 +300,8 @@ class GUI(QMainWindow):
                 self.time_start = time.time()-segundos_transcurridos
                 self.is_playing = True
                 self.play_button.setChecked(True)
-        
-        self.send_player_data()
 
-    def forward(self):#
+    def forward(self): #TEST
         if self.audio_data is not None: #WITH FILE TRACK
             
             posible_sample = int((10 + self.timecode) * self.sample_rate)
@@ -327,10 +343,8 @@ class GUI(QMainWindow):
                     self.paused_time = None
                     self.timecode = 86400
                 self.update_tc_labels()
-                
-        self.send_player_data()
 
-    def backward(self):#
+    def backward(self): #TEST
         if self.audio_data is not None: #WITH FILE TRACK
             
             posible_sample=max(0,(self.current_sample  - (self.sample_rate*10)))
@@ -370,10 +384,8 @@ class GUI(QMainWindow):
                     self.paused_time = None
                     self.timecode = 0
                 self.update_tc_labels()
-                
-        self.send_player_data()
-        
-    def always_on_top(self):#OK
+
+    def always_on_top(self): #TEST
         self.is_pin= not self.is_pin
         if self.windowFlags() & Qt.WindowStaysOnTopHint:
             self.setWindowFlags(self.windowFlags() & ~Qt.WindowStaysOnTopHint)
@@ -381,7 +393,7 @@ class GUI(QMainWindow):
             self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         self.show()
 
-    def lock(self):#OK
+    def lock(self): #TEST
         
         self.is_lock = not self.is_lock
         if self.is_lock:
@@ -425,7 +437,9 @@ class GUI(QMainWindow):
                 self.audio_slider.setEnabled(True)
                 self.connect_button.setEnabled(True)
 
-    def open_audio_file(self):#
+    # PLAYER BUTTONS FUNCTIONS
+
+    def open_audio_file(self): #TEST
         try:
             file_path, _ = QFileDialog.getOpenFileName(None, 'Abrir archivo de audio', '', 'Archivos de audio (*.wav *.mp3)')
 
@@ -454,13 +468,12 @@ class GUI(QMainWindow):
                 self.audio_open_button.setText(file_name.upper())
 
                 self.remaining_time = self.audio_total_duration
-                self.send_player_data()
 
         except Exception as e:
             print('[OPEN AUDIO ERROR]:', str(e))
             self.close_audio_file()
-    
-    def close_audio_file(self):#
+
+    def close_audio_file(self): #TEST
         if self.audio_data is not None:
             if self.is_playing:
                 message_box = QMessageBox(self)
@@ -485,13 +498,11 @@ class GUI(QMainWindow):
             self.audio_open_button.setText("OPEN AN AUDIO FILE TO PLAY")
             self.timecode = 0
             self.update_tc_labels()
-            self.send_player_data()
-    
-    def set_gain(self):#
-        self.gain = self.audio_slider.value()/100
-        self.send_player_data()
 
-    def set_audio_device(self):#
+    def set_gain(self): #TEST
+        self.gain = self.audio_slider.value()/100
+
+    def set_audio_device(self): #TEST
 
         if self.audio_devices != {}:
             device_name = self.audio_output_combo_box.currentText()
@@ -506,9 +517,141 @@ class GUI(QMainWindow):
             time.sleep(0.01)
             self.play_pause()
 
+    # LTC BUTTONS FUNCTIONS
+
+    def set_ltc_on(self): #TEST
+        self.ltc_is_on = not self.ltc_is_on
+        if self.ltc_is_on:
+            self.ltc_tc_label.setStyleSheet(f"color: #36BD74;")
+            self.ltc_output_combo_box.setEnabled(False)
+            self.ltc_fps_combo_box.setEnabled(False)
+        else:
+            self.ltc_tc_label.setText(secs_to_tc(self.ltc_offset,self.ltc_fps))
+            self.ltc_tc_label.setStyleSheet(f"color: grey;")
+            self.ltc_output_combo_box.setEnabled(True)
+            self.ltc_fps_combo_box.setEnabled(True)
+
+    def set_ltc_offset(self): #TEST
+        
+        def errase_values():
+            self.ltc_hh_offset.setText("")
+            self.ltc_mm_offset.setText("")
+            self.ltc_ss_offset.setText("")
+            self.ltc_ff_offset.setText("")     
+               
+        time_entries = [self.ltc_hh_offset.text(), self.ltc_mm_offset.text(),self.ltc_ss_offset.text(),self.ltc_ff_offset.text()]
+        time_values = []
+        
+        for entry in time_entries:
+            time_str = entry or "0"
+            if not time_str.isdigit():
+                errase_values()
+                return
+            time_values.append(int(time_str))
+        
+        hh, mm, ss, ff = time_values
+        
+        if hh > 23 or mm > 59 or ss > 59 or ff > self.ltc_fps - 1:
+            errase_values()
+            return
+
+        new_time = f"{hh:02d}:{mm:02d}:{ss:02d}:{ff:02d}"
+        new_time_sec = tc_to_secs(new_time,self.ltc_fps)
+        self.ltc_offset = new_time_sec
+        self.ltc_offset_label.setText(new_time)
+        
+        if not self.ltc_is_on or not self.is_playing:
+            self.ltc_tc_label.setText(new_time)
+            
+        errase_values()
+
+    def set_ltc_output(self): #TEST
+        if self.audio_devices != {}:
+            device_name = self.ltc_output_combo_box.currentText()
+            for key, value in self.audio_devices.items():
+                if value == device_name:
+                    device_index = key
+                    self.ltc_output_device = device_index
+                    break
+
+    def set_ltc_fps(self): #TEST
+        value = self.ltc_fps_combo_box.currentText()
+        if value == "24 FPS":
+            self.ltc_fps = 24
+        elif value == "25 FPS":
+            self.ltc_fps = 25
+        elif value == "30 FPS":
+            self.ltc_fps = 30
+
+    # MTC BUTTONS FUNCTIONS
+
+    def set_mtc_on(self): #TEST
+        self.mtc_is_on = not self.mtc_is_on
+        if self.mtc_is_on:
+            self.mtc_tc_label.setStyleSheet(f"color: #36BD74;")
+            self.mtc_output_combo_box.setEnabled(False)
+            self.mtc_fps_combo_box.setEnabled(False)
+        else:
+            self.mtc_tc_label.setText(secs_to_tc(self.mtc_offset,self.mtc_fps))
+            self.mtc_tc_label.setStyleSheet(f"color: grey;")
+            self.mtc_output_combo_box.setEnabled(True)
+            self.mtc_fps_combo_box.setEnabled(True)
+
+    def set_mtc_offset(self): #TEST  
+        def errase_values():
+            self.mtc_hh_offset.setText("")
+            self.mtc_mm_offset.setText("")
+            self.mtc_ss_offset.setText("")
+            self.mtc_ff_offset.setText("")     
+               
+        time_entries = [self.mtc_hh_offset.text(), self.mtc_mm_offset.text(),self.mtc_ss_offset.text(),self.mtc_ff_offset.text()]
+        time_values = []
+        
+        for entry in time_entries:
+            time_str = entry or "0"
+            if not time_str.isdigit():
+                errase_values()
+                return
+            time_values.append(int(time_str))
+        
+        hh, mm, ss, ff = time_values
+        
+        if hh > 23 or mm > 59 or ss > 59 or ff > self.mtc_fps - 1:
+            errase_values()
+            return
+
+        new_time = f"{hh:02d}:{mm:02d}:{ss:02d}:{ff:02d}"
+        new_time_sec = tc_to_secs(new_time,self.mtc_fps)
+        
+        self.mtc_offset = new_time_sec
+        self.mtc_offset_label.setText(new_time)
+        
+        if not self.mtc_is_on or not self.is_playing:
+            self.mtc_tc_label.setText(new_time)
+        
+        errase_values()
+
+    def set_mtc_output(self): #TEST
+        if self.mtc_outputs != {}:
+            device_name = self.mtc_output_combo_box.currentText()
+            for key, value in self.mtc_outputs.items():
+                if value == device_name:
+                    device_index = key
+                    self.mtc_output_device = device_index
+                    break
+
+    def set_mtc_fps(self): #TEST
+        value = self.mtc_fps_combo_box.currentText()
+        if value == "24 FPS":
+            self.mtc_fps = 24
+        elif value == "25 FPS":
+            self.mtc_fps = 25
+        elif value == "30 FPS":
+            self.mtc_fps = 30
+
     # ---------------- TOOLS
-    
-    def get_output_devices(self):#
+
+    def get_output_devices(self): #TEST
         devices = sd.query_devices()
         output_devices = {}
 
@@ -524,7 +667,7 @@ class GUI(QMainWindow):
 
         return output_devices    
 
-    def center_widget(self,window):#OK
+    def center_widget(self,window):#TEST
         window.setGeometry(
             QtWidgets.QStyle.alignedRect(
                 QtCore.Qt.LeftToRight,
@@ -533,72 +676,163 @@ class GUI(QMainWindow):
                 self.geometry(),
             )
         )
-    
-    # ---------------- PROCESS COMUNICATION
 
-    def send_player_data(self):
-        player_data_to_send = {}
-        
-        if self.last_is_playing != self.is_playing:
-            player_data_to_send['is_playing'] = self.is_playing
-            self.last_is_playing = self.is_playing
+    def update_tc_labels(self): #TEST
+        self.tc_label.setText(str(secs_to_tc(self.timecode)))
             
-        if self.last_time_start != self.time_start:
-            player_data_to_send['time_start'] = self.time_start
-            self.last_time_start = self.time_start
             
-        if not np.array_equal(self.last_audio_data, self.audio_data):
-            player_data_to_send['audio_data'] = self.audio_data
-            self.last_audio_data = self.audio_data
+        if self.audio_data is None:
+            self.remaning_tc.setText(str(secs_to_tc(86400-self.timecode)))
+        else:
+            self.remaning_tc.setText(str(secs_to_tc(self.audio_total_duration-self.timecode)))
             
-        if self.last_sample_rate != self.sample_rate:
-            player_data_to_send['sample_rate'] = self.sample_rate
-            self.last_sample_rate = self.sample_rate
-        
-        if self.last_audio_device != self.audio_device:
-            player_data_to_send['audio_device'] = self.audio_device
-            self.last_audio_device = self.audio_device        
-        
-        if self.last_gain != self.gain:
-            player_data_to_send['gain'] = self.gain
-            self.last_gain = self.gain        
+        if self.ltc_is_on:
+            self.ltc_tc_label.setText(str(secs_to_tc(self.timecode + self.ltc_offset,self.ltc_fps)))
+        if self.mtc_is_on:
+            self.mtc_tc_label.setText(str(secs_to_tc(self.timecode + self.mtc_offset,self.mtc_fps)))
 
-        if self.last_paused_sample != self.paused_sample:
-            player_data_to_send['paused_sample'] = self.paused_sample
-            self.last_paused_sample = self.paused_sample
-                    
-        if player_data_to_send:
-            self.player_pipe.send(player_data_to_send)
+    # ---------------- THREAD FUNCTIONS (PIPES COMUNICATION)
 
-    def send_server_data(self):#COMUNICATION
-        server_data_to_send = {}
+    def send_data_to_process(self): #THREAD
+        
+        # SEND CONFIRMATIONS
+        self.last_is_playing = self.is_playing
+        self.last_time_start = self.time_start
+        self.last_audio_data = self.audio_data
+        self.last_sample_rate = self.sample_rate
+        self.last_audio_device = self.audio_device
+        self.last_gain = self.gain
+        self.last_paused_sample = self.paused_sample
+        
+        self.last_host = self.host
+        self.last_port = self.port
+        self.last_network_is_on = self.network_is_on
+        self.last_timecode = self.timecode
+        self.last_mode = self.mode
+        
+        self.last_ltc_output_device = self.ltc_output_device
+        self.last_ltc_fps = self.ltc_fps
+        self.last_ltc_offset = self.ltc_offset
+        self.last_ltc_is_on = self.ltc_is_on
+        
+        self.last_mtc_output_device = self.mtc_output_device
+        self.last_mtc_fps = self.mtc_fps
+        self.last_mtc_offset = self.mtc_offset
+        self.last_mtc_is_on = self.mtc_is_on
+        
+        while self.com_enable:
+            data_to_send = {}
+            if self.last_is_playing != self.is_playing:
+                data_to_send['is_playing'] = self.is_playing
+                if self.mode == "master":
+                    self.player_pipe.send(data_to_send)
+                self.ltc_pipe.send(data_to_send)
+                self.mtc_pipe.send(data_to_send)            
+                self.last_is_playing = self.is_playing
+                
+            if self.last_time_start != self.time_start:
+                data_to_send['time_start'] = self.time_start
+                self.player_pipe.send(data_to_send)    
+                self.last_time_start = self.time_start
+                
+            if not np.array_equal(self.last_audio_data, self.audio_data):
+                data_to_send['audio_data'] = self.audio_data
+                self.player_pipe.send(data_to_send)       
+                self.last_audio_data = self.audio_data
+                
+            if self.last_sample_rate != self.sample_rate:
+                data_to_send['sample_rate'] = self.sample_rate
+                self.player_pipe.send(data_to_send)        
+                self.last_sample_rate = self.sample_rate
+            
+            if self.last_audio_device != self.audio_device:
+                data_to_send['audio_device'] = self.audio_device
+                self.player_pipe.send(data_to_send)        
+                self.last_audio_device = self.audio_device        
+            
+            if self.last_gain != self.gain:
+                data_to_send['gain'] = self.gain
+                self.player_pipe.send(data_to_send)          
+                self.last_gain = self.gain        
 
-        if self.last_host != self.host:
-            server_data_to_send['host'] = self.host
-            self.last_host = self.host
+            if self.last_paused_sample != self.paused_sample:
+                data_to_send['paused_sample'] = self.paused_sample
+                self.player_pipe.send(data_to_send)         
+                self.last_paused_sample = self.paused_sample
             
-        if self.last_port != self.port:
-            server_data_to_send['port'] = self.port
-            self.last_port = self.port
+            if self.last_host != self.host:
+                data_to_send['host'] = self.host
+                self.server_pipe.send(data_to_send)        
+                self.last_host = self.host
+                
+            if self.last_port != self.port:
+                data_to_send['port'] = self.port
+                self.server_pipe.send(data_to_send)         
+                self.last_port = self.port
+                
+            if self.last_network_is_on != self.network_is_on:
+                data_to_send['network_is_on'] = self.network_is_on
+                self.server_pipe.send(data_to_send)        
+                self.last_network_is_on = self.network_is_on
+                
+            if self.last_timecode != self.timecode:
+                data_to_send['tc'] = self.timecode
+                if self.mode=="master":
+                    self.server_pipe.send(data_to_send)
+                self.ltc_pipe.send(data_to_send)
+                self.mtc_pipe.send(data_to_send)         
+                self.last_timecode = self.timecode
             
-        if self.last_network_is_on != self.network_is_on:
-            server_data_to_send['network_is_on'] = self.network_is_on
-            self.last_network_is_on = self.network_is_on
+            if self.last_mode != self.mode:
+                data_to_send['mode'] = self.mode
+                self.server_pipe.send(data_to_send)         
+                self.last_mode = self.mode   
             
-        if self.last_timecode != self.timecode:
-            server_data_to_send['tc'] = self.timecode
-            self.last_timecode = self.timecode
-        
-        if self.last_mode != self.mode:
-            server_data_to_send['mode'] = self.mode
-            self.last_mode = self.mode   
-        
-        if server_data_to_send:
-            self.server_pipe.send(server_data_to_send)
+            if self.last_ltc_is_on != self.ltc_is_on:
+                data_to_send['ltc_is_on'] = self.ltc_is_on
+                self.ltc_pipe.send(data_to_send)           
+                self.last_ltc_is_on = self.ltc_is_on  
+                
+            if self.last_ltc_output_device != self.ltc_output_device:
+                data_to_send['ltc_output_device'] = self.ltc_output_device
+                self.ltc_pipe.send(data_to_send)           
+                self.last_ltc_output_device = self.ltc_output_device
+                
+            if self.last_ltc_fps != self.ltc_fps:
+                data_to_send['ltc_fps'] = self.ltc_fps
+                self.ltc_pipe.send(data_to_send)   
+                self.last_ltc_fps = self.ltc_fps
+                
+            if self.last_ltc_offset != self.ltc_offset:
+                data_to_send['ltc_offset'] = self.ltc_offset
+                self.ltc_pipe.send(data_to_send)   
+                self.last_ltc_offset = self.ltc_offset
+                
+            if self.last_mtc_is_on != self.mtc_is_on:
+                data_to_send['mtc_is_on'] = self.mtc_is_on
+                self.mtc_pipe.send(data_to_send)           
+                self.last_mtc_is_on = self.mtc_is_on  
+                
+            if self.last_mtc_output_device != self.mtc_output_device:
+                data_to_send['mtc_output_device'] = self.mtc_output_device
+                self.mtc_pipe.send(data_to_send)           
+                self.last_mtc_output_device = self.mtc_output_device
+                
+            if self.last_mtc_fps != self.mtc_fps:
+                data_to_send['mtc_fps'] = self.mtc_fps
+                self.mtc_pipe.send(data_to_send)   
+                self.last_mtc_fps = self.mtc_fps
+                
+            if self.last_mtc_offset != self.mtc_offset:
+                data_to_send['mtc_offset'] = self.mtc_offset
+                self.mtc_pipe.send(data_to_send)   
+                self.last_mtc_offset = self.mtc_offset
+                
+            time.sleep(0.01)
 
-    def recv_server_data(self):#THREAD
-        
-        while self.recv_data:
+    def recv_server_data(self): #THREAD
+        last_timecode = self.timecode
+        while self.com_enable:
             
             network_recv_data = self.server_pipe.recv()
 
@@ -608,9 +842,14 @@ class GUI(QMainWindow):
                 self.server_error = network_recv_data["error"]
             if 'clients' in network_recv_data:
                 self.clients = network_recv_data["clients"]   
-            if 'timecode_recv' in network_recv_data:
-                self.timecode_recv = network_recv_data["timecode_recv"]     
+            if 'timecode_recv' in network_recv_data and self.mode == "slave":
+                self.timecode = network_recv_data["timecode_recv"]     
 
+        
+            if last_timecode != self.timecode and self.mode == "slave":
+                last_timecode = self.timecode
+                self.update_tc_labels()
+                
             if self.online and self.network_is_on:
                 if self.mode=="master":
                     self.connect_button.setText("SENDING")
@@ -632,31 +871,39 @@ class GUI(QMainWindow):
                 self.error_label.setVisible(True)
                 self.error_label.setText(self.server_error)
 
-    def recv_player_data(self):#THREAD
+    def recv_player_data(self): #THREAD
         last_timecode = self.timecode
         
-        while self.recv_data:
+        while self.com_enable:
             
             player_recv_data = self.player_pipe.recv()
             
-            if 'tc' in player_recv_data:
+            if 'tc' in player_recv_data and self.mode == "master":
                 self.timecode = player_recv_data["tc"]
             if 'current_sample' in player_recv_data:
                 self.current_sample = player_recv_data["current_sample"]   
             
-            if last_timecode != self.timecode:
-                self.send_server_data()
+            if last_timecode != self.timecode and self.mode == "master":
                 last_timecode = self.timecode
-                
-            self.update_tc_labels()
+                self.update_tc_labels()
 
-    def update_tc_labels(self):
-        self.tc_label.setText(str(secs_to_tc(self.timecode)))
-            
-        if self.audio_data is None:
-            self.remaning_tc.setText(str(secs_to_tc(86400-self.timecode)))
-        else:
-            self.remaning_tc.setText(str(secs_to_tc(self.audio_total_duration-self.timecode)))
+    def recv_ltc_data(self): #THREAD
+        recive_data = self.mtc_pipe.recv()
+        
+        if 'ltc_devices' in recive_data:
+            self.ltc_outputs = recive_data["ltc_devices"]
+            if self.ltc_outputs != {}:
+                self.ltc_output_combo_box.clear()
+                self.ltc_output_combo_box.addItems(list(self.ltc_outputs.values()))
+
+    def recv_mtc_data(self): #THREAD
+        recive_data = self.mtc_pipe.recv()
+        
+        if 'mtc_devices' in recive_data:
+            self.mtc_outputs = recive_data["mtc_devices"]
+            if self.mtc_outputs != {}:
+                self.mtc_output_combo_box.clear()
+                self.mtc_output_combo_box.addItems(list(self.mtc_outputs.values()))
 
 ##############################################
 ##---------------- THREAD ------------------##
@@ -669,7 +916,7 @@ class GUI_Recv(QRunnable):
         self.Func = InFunc
 
     @pyqtSlot(name="1")
-    def run(self):
+    def run(self): #TEST
         self.Func()
 
 ##############################################
@@ -809,7 +1056,7 @@ message_box_style="""
 ##------------- EXEC FUNCTION --------------##
 ##############################################
 
-def UI(server_pipe, player_pipe):
+def UI(server_pipe, player_pipe,ltc_pipe,mtc_pipe):
     mainApp = QApplication(sys.argv)
-    app = GUI(server_pipe,player_pipe)
+    app = GUI(server_pipe,player_pipe,ltc_pipe,mtc_pipe)
     mainApp.exec_()   

@@ -121,7 +121,8 @@ class Network(Process):
                                     continue
                                 data_str = data.decode("utf-8")
                                 self.timecode_recv = float(data_str)
-                                log(self.timecode_recv,YELLOW)
+                                self.send_data()
+                                #log(self.timecode_recv,YELLOW)
                                 
                             if not self.network_is_on:
                                     break
@@ -196,7 +197,6 @@ class Network(Process):
 
     def send_data(self):
         data_to_send = {}
-        
 
         if self.last_online != self.online:
             data_to_send['online'] = self.online
@@ -210,7 +210,7 @@ class Network(Process):
             data_to_send['clients'] = self.clients
             self.last_clients = self.clients
 
-        if self.last_timecode_recv != self.timecode_recv:
+        if self.last_timecode_recv != self.timecode_recv and self.mode == "slave":
             data_to_send['timecode_recv'] = self.timecode_recv
             self.last_timecode_recv = self.timecode_recv
 

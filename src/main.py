@@ -1,7 +1,9 @@
 from multiprocessing import Process, Pipe
-from server import *
-from gui import *
-from player import *
+from Network import *
+from GUI import *
+from Player import *
+from MTC_Sender import *
+from LTC_Sender import *
 
 ##############################################
 ##------------------ MAIN ------------------##
@@ -10,13 +12,19 @@ from player import *
 if __name__ == "__main__":
     gui_pipe, network_pipe = Pipe()
     gui_pipe2, player_pipe = Pipe()
+    gui_pipe3, mtc_pipe = Pipe()
+    gui_pipe4, ltc_pipe = Pipe()
     
     server = Network(gui_pipe)
     player = Player(gui_pipe2)
-    gui = Process(target = UI, args = (network_pipe,player_pipe))
+    mtc = MTC_Sender(gui_pipe3)
+    ltc = LTC_Sender(gui_pipe4)
+    gui = Process(target = UI, args=(network_pipe, player_pipe, ltc_pipe, mtc_pipe))
     
     server.start()
     player.start()
+    mtc.start()
+    ltc.start()
     gui.start()
     
     while True:
@@ -27,4 +35,3 @@ if __name__ == "__main__":
             player.join()
             break
         time.sleep(1)
-

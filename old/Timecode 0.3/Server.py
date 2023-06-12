@@ -2,7 +2,7 @@ import time
 from socket import *
 from threading import Thread, current_thread, Event
 from logs_tools import *
-from multiprocess import Process, Queue
+from multiprocessing import Process
 
 
 class Server(Process):
