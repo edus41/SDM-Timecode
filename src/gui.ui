@@ -132,9 +132,9 @@ border-radius: 10</string>
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>7</y>
-        <width>23</width>
-        <height>23</height>
+        <y>10</y>
+        <width>16</width>
+        <height>16</height>
        </rect>
       </property>
       <property name="font">
@@ -151,29 +151,30 @@ border-radius: 10</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QPushButton {
-        background-color: #454545;
-        color: #AAAAAA;
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/close.png);
+        color: #454545;
         border: none;
-        border-radius: 6px;
+        border-radius: 5px;
     }
     QPushButton:hover {
-        background-color: #9a0d0d;
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/close_on.png);
+    background-repeat: no-repeat;
+        background-color: #202020;
+		color: #202020;
     }
     QPushButton:pressed {
-        background-color: #707070;
+        background-color: #FFFFFF;
         border-style: inset;
-    }
-
-QPushButton:disabled {
-        background-color: #353535;
-        color: #202020;
-    }
-
-
-</string>
+    }</string>
       </property>
       <property name="text">
-       <string>X</string>
+       <string/>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>16</width>
+        <height>16</height>
+       </size>
       </property>
      </widget>
      <widget class="QComboBox" name="audio_output_combo_box">
@@ -1664,9 +1665,9 @@ QLineEdit:disabled  {
     <widget class="QLabel" name="error_label">
      <property name="geometry">
       <rect>
-       <x>780</x>
+       <x>768</x>
        <y>570</y>
-       <width>171</width>
+       <width>191</width>
        <height>20</height>
       </rect>
      </property>
@@ -1824,8 +1825,8 @@ background-color: #202020;</string>
     <widget class="QLabel" name="titule_label">
      <property name="geometry">
       <rect>
-       <x>46</x>
-       <y>16</y>
+       <x>30</x>
+       <y>13</y>
        <width>131</width>
        <height>16</height>
       </rect>
@@ -1852,7 +1853,7 @@ background-color: #202020;</string>
             }</string>
      </property>
      <property name="text">
-      <string>SDM TIMECODE APP</string>
+      <string>TC - NET - APP</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -1861,10 +1862,10 @@ background-color: #202020;</string>
     <widget class="QPushButton" name="app_close_button">
      <property name="geometry">
       <rect>
-       <x>936</x>
-       <y>16</y>
-       <width>21</width>
-       <height>20</height>
+       <x>971</x>
+       <y>14</y>
+       <width>16</width>
+       <height>16</height>
       </rect>
      </property>
      <property name="font">
@@ -1881,31 +1882,33 @@ background-color: #202020;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {
-        background-color: transparent;
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/close.png);
         color: #454545;
         border: none;
-        border-radius: 2px;
+        border-radius: 5px;
     }
     QPushButton:hover {
-        background-color: #888888;
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/close_on.png);
+    background-repeat: no-repeat;
+        background-color: #202020;
 		color: #202020;
     }
     QPushButton:pressed {
-        background-color: #AAAAAA;
+        background-color: #FFFFFF;
         border-style: inset;
     }</string>
      </property>
      <property name="text">
-      <string>X</string>
+      <string/>
      </property>
     </widget>
     <widget class="QPushButton" name="app_mini_button">
      <property name="geometry">
       <rect>
-       <x>910</x>
-       <y>16</y>
-       <width>20</width>
-       <height>20</height>
+       <x>952</x>
+       <y>14</y>
+       <width>16</width>
+       <height>16</height>
       </rect>
      </property>
      <property name="font">
@@ -1922,22 +1925,30 @@ background-color: #202020;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {
-        background-color: transparent;
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/min.png);
         color: #454545;
         border: none;
-        border-radius: 2px;
+        border-radius: 5px;
     }
     QPushButton:hover {
-        background-color: #888888;
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/min_on.png);
+    background-repeat: no-repeat;
+        background-color: #202020;
 		color: #202020;
     }
     QPushButton:pressed {
-        background-color: #AAAAAA;
+        background-color: #FFFFFF;
         border-style: inset;
     }</string>
      </property>
      <property name="text">
-      <string>   ̶</string>
+      <string/>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>20</width>
+       <height>16</height>
+      </size>
      </property>
     </widget>
     <widget class="QPushButton" name="slave_button">
@@ -2660,6 +2671,28 @@ QComboBox::down-arrow::disabled {
        <string>Networks not found</string>
       </property>
      </item>
+    </widget>
+    <widget class="QLabel" name="icon">
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>14</y>
+       <width>15</width>
+       <height>15</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="scaledContents">
+      <bool>false</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
     </widget>
    </widget>
   </widget>

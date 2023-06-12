@@ -1,8 +1,9 @@
 import time
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog,QMessageBox,QComboBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog,QMessageBox,QComboBox, QLabel
 from PyQt5 import uic, QtCore,QtWidgets
 from PyQt5.QtCore import QRunnable, pyqtSlot, QThreadPool
+from PyQt5.QtGui import QPixmap, QPainter, QColor
 from PyQt5.QtCore import Qt
 from socket import *
 import numpy as np
@@ -139,8 +140,6 @@ class GUI(QMainWindow):
         self.mtc_offset_button.clicked.connect(self.set_mtc_offset)
         self.mtc_output_combo_box.currentIndexChanged.connect(self.set_mtc_output)
         self.mtc_fps_combo_box.currentIndexChanged.connect(self.set_mtc_fps)
-        
-        
 
     def visual_init(self): #TEST
         if self.audio_devices != {}:
@@ -164,6 +163,16 @@ class GUI(QMainWindow):
         if self.ip_combo_box.currentText() == "Networks not found": 
             self.connect_button.setEnabled(False)
 
+        # ICON
+        pixmap = QPixmap("C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/icon.ico")
+        pixmap_redimensionado = pixmap.scaled(15, 15) 
+        transparencia = 150
+        painter = QPainter(pixmap_redimensionado)
+        painter.setCompositionMode(QPainter.CompositionMode_DestinationIn)
+        painter.fillRect(pixmap_redimensionado.rect(), QColor(0, 0, 0, transparencia))
+        painter.end()
+        self.icon.setPixmap(pixmap_redimensionado)
+        self.icon.show()
     # ---------------- WINDOW CONFIG
 
     def mousePressEvent(self, event):#
