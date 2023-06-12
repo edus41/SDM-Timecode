@@ -1,6 +1,6 @@
 import time
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog,QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog,QMessageBox,QComboBox
 from PyQt5 import uic, QtCore,QtWidgets
 from PyQt5.QtCore import QRunnable, pyqtSlot, QThreadPool
 from PyQt5.QtCore import Qt
@@ -111,7 +111,8 @@ class GUI(QMainWindow):
         self.master_button.clicked.connect(self.set_master_mode)
         self.slave_button.clicked.connect(self.set_slave_mode)
         self.connect_button.clicked.connect(self.set_network)
-        
+        self.ip_combo_box.currentIndexChanged.connect(self.set_ip)
+
         # CONTROL BUTTONS ASSING
         self.play_button.clicked.connect(self.play_pause)
         self.stop_button.clicked.connect(self.stop)
@@ -138,6 +139,8 @@ class GUI(QMainWindow):
         self.mtc_offset_button.clicked.connect(self.set_mtc_offset)
         self.mtc_output_combo_box.currentIndexChanged.connect(self.set_mtc_output)
         self.mtc_fps_combo_box.currentIndexChanged.connect(self.set_mtc_fps)
+        
+        
 
     def visual_init(self): #TEST
         if self.audio_devices != {}:
@@ -146,11 +149,20 @@ class GUI(QMainWindow):
             self.audio_output_combo_box.addItems(list_audio_devices)
             self.ltc_output_combo_box.clear()
             self.ltc_output_combo_box.addItems(list_audio_devices)
+            self.set_ip()
+        if self.nets != {}:
+            nets = [f"{value} - {key}" for key, value in self.nets.items()]
+            self.ip_combo_box.clear()
+            self.ip_combo_box.addItems(nets)
+            self.ip_combo_box.setCurrentIndex(0)
         self.audio_slider.setValue(int(self.gain*100))
         self.error_label.setVisible(False)
         self.users_icon.setVisible(False)
         self.users_label.setVisible(False)
         self.recv_mtc_data()
+        
+        if self.ip_combo_box.currentText() == "Networks not found": 
+            self.connect_button.setEnabled(False)
 
     # ---------------- WINDOW CONFIG
 
@@ -250,11 +262,7 @@ class GUI(QMainWindow):
             self.users_icon.setVisible(False)
             self.users_label.setVisible(False)
             self.error_label.setVisible(False)
-            
-            self.ip_1.setEnabled(True)
-            self.ip_2.setEnabled(True)
-            self.ip_3.setEnabled(True)
-            self.ip_4.setEnabled(True)
+            self.ip_combo_box.setEnabled(True)
             
         else:
             
@@ -263,15 +271,15 @@ class GUI(QMainWindow):
                 #self.connect_button.setStyleSheet(connecting_button_style)
                 #self.users_icon.setVisible(False)
                 #self.users_label.setVisible(False)
+                self.ip_combo_box.setEnabled(False)
                 self.error_label.setVisible(False)
                 self.error_label.setText(self.server_error) 
-                
-            self.ip_1.setEnabled(False)
-            self.ip_2.setEnabled(False)
-            self.ip_3.setEnabled(False)
-            self.ip_4.setEnabled(False)
-            
-        self.host = f"{self.ip_1.text()}.{self.ip_2.text()}.{self.ip_3.text()}.{self.ip_4.text()}"
+
+    def set_ip(self):
+        if self.nets:
+            net = self.ip_combo_box.currentText()
+            ip = net.split(" - ")[0]
+            self.host=ip
 
     # CONTROLS BUTTONS FUNCTIONS
 
@@ -415,10 +423,7 @@ class GUI(QMainWindow):
             self.backward_button.setEnabled(False)
             self.audio_slider.setEnabled(False)
             self.connect_button.setEnabled(False)
-            self.ip_1.setEnabled(False)
-            self.ip_2.setEnabled(False)
-            self.ip_3.setEnabled(False)
-            self.ip_4.setEnabled(False)
+            self.ip_combo_box.setEnabled(False)
             self.master_button.setEnabled(False)
             self.slave_button.setEnabled(False)
             
@@ -428,13 +433,8 @@ class GUI(QMainWindow):
             self.ltc_frame.setEnabled(True)
             self.mtc_frame.setEnabled(True)
             self.connect_button.setEnabled(True)
+            self.ip_combo_box.setEnabled(True)
             
-            if not self.network_is_on:
-                self.ip_1.setEnabled(True)
-                self.ip_2.setEnabled(True)
-                self.ip_3.setEnabled(True)
-                self.ip_4.setEnabled(True)
-
             if self.mode == "master":
                 self.audio_frame.setEnabled(True)
                 self.play_button.setEnabled(True)
@@ -444,6 +444,9 @@ class GUI(QMainWindow):
                 self.backward_button.setEnabled(True)
                 self.audio_slider.setEnabled(True)
                 self.connect_button.setEnabled(True)
+
+        if self.ip_combo_box.currentText() == "Networks not found": 
+            self.connect_button.setEnabled(False)
 
     # PLAYER BUTTONS FUNCTIONS
 
@@ -794,7 +797,6 @@ class GUI(QMainWindow):
                 data_to_send['ltc_is_on'] = self.ltc_is_on
                 self.ltc_pipe.send(data_to_send)          
                 self.last_ltc_is_on = self.ltc_is_on  
-                print("SIP")
                 
             if self.last_ltc_output_device != self.ltc_output_device:
                 data_to_send['ltc_output_device'] = self.ltc_output_device

@@ -258,7 +258,7 @@ QComboBox::down-arrow::disabled {
       </property>
       <item>
        <property name="text">
-        <string>Select Output Device</string>
+        <string>Audio Devices not found</string>
        </property>
       </item>
      </widget>
@@ -637,7 +637,7 @@ QComboBox::down-arrow::disabled {
       </property>
       <item>
        <property name="text">
-        <string>Select Output Device</string>
+        <string>Audio Devices not found</string>
        </property>
       </item>
      </widget>
@@ -1241,7 +1241,7 @@ QComboBox::down-arrow::disabled {
       </property>
       <item>
        <property name="text">
-        <string>Select Output Device</string>
+        <string>Midi Devices not found</string>
        </property>
       </item>
      </widget>
@@ -1664,7 +1664,7 @@ QLineEdit:disabled  {
     <widget class="QLabel" name="error_label">
      <property name="geometry">
       <rect>
-       <x>788</x>
+       <x>780</x>
        <y>570</y>
        <width>171</width>
        <height>20</height>
@@ -1687,194 +1687,6 @@ background:#202020;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="ip_1">
-     <property name="geometry">
-      <rect>
-       <x>785</x>
-       <y>550</y>
-       <width>41</width>
-       <height>18</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>IBM Plex Sans Light</family>
-       <pointsize>10</pointsize>
-       <weight>50</weight>
-       <italic>false</italic>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="cursor">
-      <cursorShape>ArrowCursor</cursorShape>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">    QLineEdit {
-    	background-color: #202020;
-        border: 1px solid rgba(54,189,116,60%);
-        border-radius: 4px;
-        color: #808080;
-    }
-
-QLineEdit:disabled  {
-    background-color:  transparent;
-    color: grey;
-    border: 1px solid #404040;
-    border-radius: 4px;
-    padding: 2px;
-}</string>
-     </property>
-     <property name="text">
-      <string>192</string>
-     </property>
-     <property name="maxLength">
-      <number>3</number>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="ip_2">
-     <property name="geometry">
-      <rect>
-       <x>830</x>
-       <y>550</y>
-       <width>41</width>
-       <height>18</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>IBM Plex Sans Light</family>
-       <pointsize>10</pointsize>
-       <weight>50</weight>
-       <italic>false</italic>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="cursor">
-      <cursorShape>ArrowCursor</cursorShape>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">    QLineEdit {
-    	background-color: #202020;
-        border: 1px solid rgba(54,189,116,60%);
-        border-radius: 4px;
-        color: #808080;
-    }
-
-QLineEdit:disabled  {
-    background-color:  transparent;
-    color: grey;
-    border: 1px solid #404040;
-    border-radius: 4px;
-    padding: 2px;
-}</string>
-     </property>
-     <property name="text">
-      <string>168</string>
-     </property>
-     <property name="maxLength">
-      <number>3</number>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="ip_3">
-     <property name="geometry">
-      <rect>
-       <x>875</x>
-       <y>550</y>
-       <width>41</width>
-       <height>18</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>IBM Plex Sans Light</family>
-       <pointsize>10</pointsize>
-       <weight>50</weight>
-       <italic>false</italic>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="cursor">
-      <cursorShape>ArrowCursor</cursorShape>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">    QLineEdit {
-    	background-color: #202020;
-        border: 1px solid rgba(54,189,116,60%);
-        border-radius: 4px;
-        color: #808080;
-    }
-
-QLineEdit:disabled  {
-    background-color:  transparent;
-    color: grey;
-    border: 1px solid #404040;
-    border-radius: 4px;
-    padding: 2px;
-}</string>
-     </property>
-     <property name="text">
-      <string>0</string>
-     </property>
-     <property name="maxLength">
-      <number>3</number>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="ip_4">
-     <property name="geometry">
-      <rect>
-       <x>920</x>
-       <y>550</y>
-       <width>41</width>
-       <height>18</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>IBM Plex Sans Light</family>
-       <pointsize>10</pointsize>
-       <weight>50</weight>
-       <italic>false</italic>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="cursor">
-      <cursorShape>ArrowCursor</cursorShape>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">    QLineEdit {
-    	background-color: #202020;
-        border: 1px solid rgba(54,189,116,60%);
-        border-radius: 4px;
-        color: #808080;
-    }
-
-QLineEdit:disabled  {
-    background-color:  transparent;
-    color: grey;
-    border: 1px solid #404040;
-    border-radius: 4px;
-    padding: 2px;
-}</string>
-     </property>
-     <property name="text">
-      <string>9</string>
-     </property>
-     <property name="maxLength">
-      <number>3</number>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
      </property>
     </widget>
     <widget class="QLabel" name="hh_label">
@@ -2755,6 +2567,99 @@ border-radius: 6px;</string>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
+    </widget>
+    <widget class="QComboBox" name="ip_combo_box">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>765</x>
+       <y>550</y>
+       <width>197</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QComboBox {
+    background-color: #202020;
+    color: grey;
+    border: 1px solid #606060;
+    border-radius: 4px;
+    padding: 2px;
+    padding-left: 5px;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border-left-width: 1px;
+    border-left-color: #606060;
+    border-left-style: solid;
+    background: #333333;
+}
+
+QComboBox::drop-down::hover {
+    background: #404040;
+}
+
+QComboBox::drop-down::pressed {
+    background: #505050;
+}
+
+QComboBox::down-arrow {
+    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/arrow2.png);
+    width: 10px;
+}
+
+QComboBox QAbstractItemView {
+    border-radius: 0;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    background: #303030;
+    border: 1px solid #404040;
+    padding: 4px 4px 4px 4px;
+    color: grey;
+    min-width: 280px;
+}
+
+QComboBox QAbstractItemView::item {
+    min-width: 0; /* Permitir que el ancho se ajuste automáticamente */
+}
+
+QComboBox QAbstractItemView::item:selected {
+    background-color: #606060; /* Cambiar el color de fondo del elemento seleccionado */
+}
+
+QComboBox:disabled {
+    background-color: transparent;
+    color: #505050;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+    padding-left: 5px;
+}
+
+QComboBox::drop-down::disabled {
+    background-color: transparent;
+    color: grey;
+    border: 0px solid #404040;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+QComboBox::down-arrow::disabled {
+    image: none;
+    width: 10px;
+}
+</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>Networks not found</string>
+      </property>
+     </item>
     </widget>
    </widget>
   </widget>

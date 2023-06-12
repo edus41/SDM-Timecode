@@ -22,7 +22,7 @@ class Network(Process):
         self.client = None
         
         # to recive
-        self.host = "192.168.0.9"
+        self.host = "Networks not found"
         self.port = 44444
         self.network_is_on = False
         self.timecode = 0
@@ -48,6 +48,7 @@ class Network(Process):
         self.recive_thread = Thread(target = self.recive_data)
         self.recive_thread.start()
         while True:
+            if self.host != "Networks not found":
                 while not self.online and self.network_is_on and self.mode == "master":
                     try:
                         if not self.network_is_on:
@@ -159,8 +160,8 @@ class Network(Process):
                     self.online = False
                     self.error = None
                     self.send_data()
- 
-                time.sleep(0.1)
+
+            time.sleep(0.1)
 
     def server_brodcast(self,port):
         try:
