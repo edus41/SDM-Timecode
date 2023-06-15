@@ -78,7 +78,7 @@
      <property name="geometry">
       <rect>
        <x>25</x>
-       <y>192</y>
+       <y>198</y>
        <width>950</width>
        <height>200</height>
       </rect>
@@ -110,13 +110,13 @@ background: #202020;</string>
      <property name="geometry">
       <rect>
        <x>40</x>
-       <y>423</y>
+       <y>436</y>
        <width>920</width>
        <height>35</height>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">background: #272727;
+      <string notr="true">background: #252525;
 border-radius: 10</string>
      </property>
      <property name="frameShape">
@@ -151,13 +151,13 @@ border-radius: 10</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QPushButton {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/close.png);
+    image: url(img/close.png);
         color: #454545;
         border: none;
         border-radius: 5px;
     }
     QPushButton:hover {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/close_on.png);
+    image: url(img/close_on.png);
     background-repeat: no-repeat;
         background-color: #202020;
 		color: #202020;
@@ -219,7 +219,7 @@ QComboBox::drop-down::pressed {
 
 
 QComboBox::down-arrow {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/arrow2.png);
+    image: url(img/arrow2.png);
     width: 10px;
 }
 
@@ -279,17 +279,21 @@ QComboBox::down-arrow::disabled {
        <string notr="true"> QSlider {
         background-color: transparent;
     }
+
     QSlider::groove:horizontal {
         height: 8px;
         border-radius: 4px;
         background-color: #505050;
     }
+
     QSlider::groove:horizontal:hover {
         background-color: #777777;
     }
+
     QSlider::groove:horizontal:active {
         background-color: #777777;
     }
+
     QSlider::handle:horizontal {
         width: 16px;
         height: 16px;
@@ -297,9 +301,11 @@ QComboBox::down-arrow::disabled {
         background-color: #353535;
         margin: -4px 0;
     }
+
     QSlider::handle:horizontal:hover {
         background-color: #36BD74;
     }
+
     QSlider::handle:horizontal:active {
         background-color: #36BD74;
     }
@@ -313,7 +319,12 @@ QSlider:disabled {
         height: 8px;
         border-radius: 4px;
         background-color: #303030;
-    }</string>
+    }
+
+QSlider::groove:horizontal:disabled:hover {
+    background-color: #777777;
+}
+</string>
       </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -373,7 +384,7 @@ QPushButton:disabled {
     <widget class="QLabel" name="users_icon">
      <property name="geometry">
       <rect>
-       <x>920</x>
+       <x>939</x>
        <y>510</y>
        <width>18</width>
        <height>18</height>
@@ -421,34 +432,22 @@ QPushButton:disabled {
     <widget class="QLabel" name="users_label">
      <property name="geometry">
       <rect>
-       <x>943</x>
-       <y>509</y>
-       <width>16</width>
-       <height>20</height>
+       <x>893</x>
+       <y>515</y>
+       <width>41</width>
+       <height>14</height>
       </rect>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>16</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16</width>
-       <height>20</height>
-      </size>
      </property>
      <property name="font">
       <font>
        <family>IBM Plex Sans</family>
-       <pointsize>10</pointsize>
+       <pointsize>8</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">color:#AAAAAA;
+      <string notr="true">color:#666666;
 background:#202020;</string>
      </property>
      <property name="text">
@@ -471,7 +470,7 @@ background:#202020;</string>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">background: #272727;
+      <string notr="true">background: #252525;
 border-radius: 10</string>
      </property>
      <property name="frameShape">
@@ -564,7 +563,7 @@ border-radius: 10</string>
        <rect>
         <x>10</x>
         <y>130</y>
-        <width>335</width>
+        <width>342</width>
         <height>20</height>
        </rect>
       </property>
@@ -598,7 +597,7 @@ QComboBox::drop-down::pressed {
 
 
 QComboBox::down-arrow {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/arrow2.png);
+    image: url(img/arrow2.png);
     width: 10px;
 }
 
@@ -687,7 +686,7 @@ QComboBox::drop-down::pressed {
 
 
 QComboBox::down-arrow {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/arrow2.png);
+    image: url(img/arrow2.png);
     width: 10px;
 }
 
@@ -830,7 +829,7 @@ QPushButton:disabled {
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">color: #AAAAAA;</string>
+       <string notr="true">color: #707070;</string>
       </property>
       <property name="frameShadow">
        <enum>QFrame::Plain</enum>
@@ -863,7 +862,7 @@ QPushButton:disabled {
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">color:grey</string>
+       <string notr="true">color: #606060;</string>
       </property>
       <property name="text">
        <string>FPS</string>
@@ -887,7 +886,7 @@ QPushButton:disabled {
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">color:grey</string>
+       <string notr="true">color: #606060;</string>
       </property>
       <property name="text">
        <string>OUTPUT DEVICE</string>
@@ -1071,7 +1070,7 @@ QLineEdit:disabled  {
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">background: #272727;
+      <string notr="true">background: #252525;
 border-radius: 10</string>
      </property>
      <property name="frameShape">
@@ -1168,7 +1167,7 @@ border-radius: 10</string>
        <rect>
         <x>10</x>
         <y>130</y>
-        <width>335</width>
+        <width>342</width>
         <height>20</height>
        </rect>
       </property>
@@ -1202,7 +1201,7 @@ QComboBox::drop-down::pressed {
 
 
 QComboBox::down-arrow {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/arrow2.png);
+    image: url(img/arrow2.png);
     width: 10px;
 }
 
@@ -1291,7 +1290,7 @@ QComboBox::drop-down::pressed {
 
 
 QComboBox::down-arrow {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/arrow2.png);
+    image: url(img/arrow2.png);
     width: 10px;
 }
 
@@ -1431,7 +1430,7 @@ QPushButton:disabled {
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">color: #AAAAAA;</string>
+       <string notr="true">color: #707070;</string>
       </property>
       <property name="frameShadow">
        <enum>QFrame::Plain</enum>
@@ -1464,7 +1463,7 @@ QPushButton:disabled {
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">color:grey</string>
+       <string notr="true">color: #606060;</string>
       </property>
       <property name="text">
        <string>FPS</string>
@@ -1488,7 +1487,7 @@ QPushButton:disabled {
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">color:grey</string>
+       <string notr="true">color: #606060;</string>
       </property>
       <property name="text">
        <string>OUTPUT DEVICE</string>
@@ -1665,9 +1664,9 @@ QLineEdit:disabled  {
     <widget class="QLabel" name="error_label">
      <property name="geometry">
       <rect>
-       <x>768</x>
-       <y>570</y>
-       <width>191</width>
+       <x>749</x>
+       <y>572</y>
+       <width>211</width>
        <height>20</height>
       </rect>
      </property>
@@ -1693,8 +1692,8 @@ background:#202020;</string>
     <widget class="QLabel" name="hh_label">
      <property name="geometry">
       <rect>
-       <x>29</x>
-       <y>373</y>
+       <x>32</x>
+       <y>379</y>
        <width>235</width>
        <height>20</height>
       </rect>
@@ -1707,7 +1706,7 @@ background:#202020;</string>
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">color: #AAAAAA;
+      <string notr="true">color: #555555;
 background-color: #202020;</string>
      </property>
      <property name="frameShadow">
@@ -1726,8 +1725,8 @@ background-color: #202020;</string>
     <widget class="QLabel" name="mm_label">
      <property name="geometry">
       <rect>
-       <x>264</x>
-       <y>373</y>
+       <x>266</x>
+       <y>379</y>
        <width>235</width>
        <height>20</height>
       </rect>
@@ -1740,7 +1739,7 @@ background-color: #202020;</string>
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">color: #AAAAAA;
+      <string notr="true">color: #555555;
 background-color: #202020;</string>
      </property>
      <property name="frameShadow">
@@ -1759,8 +1758,8 @@ background-color: #202020;</string>
     <widget class="QLabel" name="ss_label">
      <property name="geometry">
       <rect>
-       <x>499</x>
-       <y>373</y>
+       <x>502</x>
+       <y>379</y>
        <width>235</width>
        <height>20</height>
       </rect>
@@ -1773,7 +1772,7 @@ background-color: #202020;</string>
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">color: #AAAAAA;
+      <string notr="true">color: #555555;
 background-color: #202020;</string>
      </property>
      <property name="frameShadow">
@@ -1792,8 +1791,8 @@ background-color: #202020;</string>
     <widget class="QLabel" name="ff_label">
      <property name="geometry">
       <rect>
-       <x>734</x>
-       <y>373</y>
+       <x>737</x>
+       <y>379</y>
        <width>235</width>
        <height>20</height>
       </rect>
@@ -1806,7 +1805,7 @@ background-color: #202020;</string>
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">color: #AAAAAA;
+      <string notr="true">color: #555555;
 background-color: #202020;</string>
      </property>
      <property name="frameShadow">
@@ -1841,7 +1840,7 @@ background-color: #202020;</string>
       </font>
      </property>
      <property name="cursor">
-      <cursorShape>PointingHandCursor</cursorShape>
+      <cursorShape>ArrowCursor</cursorShape>
      </property>
      <property name="styleSheet">
       <string notr="true">QLabel {
@@ -1853,7 +1852,7 @@ background-color: #202020;</string>
             }</string>
      </property>
      <property name="text">
-      <string>TC - NET - APP</string>
+      <string>SDM TIMECODE</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -1882,13 +1881,13 @@ background-color: #202020;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/close.png);
+    image: url(img/close.png);
         color: #454545;
         border: none;
         border-radius: 5px;
     }
     QPushButton:hover {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/close_on.png);
+    image: url(img/close_on.png);
     background-repeat: no-repeat;
         background-color: #202020;
 		color: #202020;
@@ -1925,13 +1924,13 @@ background-color: #202020;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/min.png);
+    image: url(img/min.png);
         color: #454545;
         border: none;
         border-radius: 5px;
     }
     QPushButton:hover {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/min_on.png);
+    image: url(img/min_on.png);
     background-repeat: no-repeat;
         background-color: #202020;
 		color: #202020;
@@ -2023,8 +2022,12 @@ QPushButton:checked:pressed {
 		padding:0px 0px 0px 4px;
     }
 
+QPushButton:checked:disabled {
+        color: rgba(37,131,80,50%);
+    }
+
 QPushButton:disabled {
-        color: #606060;
+color: rgba(70,70,70,50%);
     }</string>
      </property>
      <property name="text">
@@ -2106,8 +2109,12 @@ QPushButton:checked:pressed {
 		padding:0px 0px 0px 4px;
     }
 
+QPushButton:checked:disabled {
+        color: rgba(37,131,80,50%);
+    }
+
 QPushButton:disabled {
-        color: #606060;
+color: rgba(70,70,70,50%);
     }</string>
      </property>
      <property name="text">
@@ -2123,8 +2130,8 @@ QPushButton:disabled {
     <widget class="QLabel" name="remaining_label">
      <property name="geometry">
       <rect>
-       <x>860</x>
-       <y>480</y>
+       <x>454</x>
+       <y>382</y>
        <width>95</width>
        <height>16</height>
       </rect>
@@ -2138,7 +2145,7 @@ QPushButton:disabled {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">color:#9a0d0d;
+      <string notr="true">color:#555555;
 background:#202020;
 </string>
      </property>
@@ -2492,7 +2499,7 @@ QPushButton:pressed {
      </property>
      <property name="geometry">
       <rect>
-       <x>790</x>
+       <x>788</x>
        <y>529</y>
        <width>171</width>
        <height>20</height>
@@ -2511,29 +2518,7 @@ QPushButton:pressed {
       <enum>Qt::LeftToRight</enum>
      </property>
      <property name="styleSheet">
-      <string notr="true">QPushButton {
-        background-color: transparent;
-        color: #707070;
-        border: none;
-        border-radius: 2px;
-		text-align: right;
-		padding:0px 0px 0px 4px;
-}
-
-QPushButton:hover {
-	    background-color: transparent;
-       	color: #999999;
-    }
-
-QPushButton:pressed {
-        background-color: transparent;
-		color:#AAAAAA;
-        border-style: inset;
-    }
-
-QPushButton:disabled {
-        color: #606060;
-    }</string>
+      <string notr="true"/>
      </property>
      <property name="text">
       <string>START SERVER</string>
@@ -2548,8 +2533,8 @@ QPushButton:disabled {
     <widget class="QLabel" name="remaning_tc">
      <property name="geometry">
       <rect>
-       <x>850</x>
-       <y>460</y>
+       <x>445</x>
+       <y>397</y>
        <width>111</width>
        <height>22</height>
       </rect>
@@ -2562,7 +2547,7 @@ QPushButton:disabled {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">color:#9a0d0d;
+      <string notr="true">color:#555555;
 background:#202020;
 border-radius: 6px;</string>
      </property>
@@ -2578,99 +2563,6 @@ border-radius: 6px;</string>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
-    </widget>
-    <widget class="QComboBox" name="ip_combo_box">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>765</x>
-       <y>550</y>
-       <width>197</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QComboBox {
-    background-color: #202020;
-    color: grey;
-    border: 1px solid #606060;
-    border-radius: 4px;
-    padding: 2px;
-    padding-left: 5px;
-}
-
-QComboBox::drop-down {
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 20px;
-    border-left-width: 1px;
-    border-left-color: #606060;
-    border-left-style: solid;
-    background: #333333;
-}
-
-QComboBox::drop-down::hover {
-    background: #404040;
-}
-
-QComboBox::drop-down::pressed {
-    background: #505050;
-}
-
-QComboBox::down-arrow {
-    image: url(C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/arrow2.png);
-    width: 10px;
-}
-
-QComboBox QAbstractItemView {
-    border-radius: 0;
-    border-bottom-right-radius: 2px;
-    border-bottom-left-radius: 2px;
-    background: #303030;
-    border: 1px solid #404040;
-    padding: 4px 4px 4px 4px;
-    color: grey;
-    min-width: 280px;
-}
-
-QComboBox QAbstractItemView::item {
-    min-width: 0; /* Permitir que el ancho se ajuste automáticamente */
-}
-
-QComboBox QAbstractItemView::item:selected {
-    background-color: #606060; /* Cambiar el color de fondo del elemento seleccionado */
-}
-
-QComboBox:disabled {
-    background-color: transparent;
-    color: #505050;
-    border: 1px solid #404040;
-    border-radius: 4px;
-    padding: 2px;
-    padding-left: 5px;
-}
-
-QComboBox::drop-down::disabled {
-    background-color: transparent;
-    color: grey;
-    border: 0px solid #404040;
-    border-radius: 4px;
-    padding: 2px;
-}
-
-QComboBox::down-arrow::disabled {
-    image: none;
-    width: 10px;
-}
-</string>
-     </property>
-     <item>
-      <property name="text">
-       <string>Networks not found</string>
-      </property>
-     </item>
     </widget>
     <widget class="QLabel" name="icon">
      <property name="geometry">
@@ -2692,6 +2584,351 @@ QComboBox::down-arrow::disabled {
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="ip_3">
+     <property name="geometry">
+      <rect>
+       <x>828</x>
+       <y>552</y>
+       <width>35</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Light</family>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #288A55;
+        border-radius: 4px;
+        color: #808080;
+    }
+
+    QLineEdit:disabled {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }</string>
+     </property>
+     <property name="text">
+      <string>444</string>
+     </property>
+     <property name="maxLength">
+      <number>3</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="ip_1">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>748</x>
+       <y>552</y>
+       <width>35</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Light</family>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #288A55;
+        border-radius: 4px;
+        color: #808080;
+    }
+
+    QLineEdit:disabled {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }</string>
+     </property>
+     <property name="text">
+      <string>444</string>
+     </property>
+     <property name="maxLength">
+      <number>3</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="ip_4">
+     <property name="geometry">
+      <rect>
+       <x>868</x>
+       <y>552</y>
+       <width>35</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Light</family>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #288A55;
+        border-radius: 4px;
+        color: #808080;
+    }
+
+    QLineEdit:disabled {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }</string>
+     </property>
+     <property name="text">
+      <string>444</string>
+     </property>
+     <property name="maxLength">
+      <number>3</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="ip_2">
+     <property name="geometry">
+      <rect>
+       <x>788</x>
+       <y>552</y>
+       <width>35</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Light</family>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #288A55;
+        border-radius: 4px;
+        color: #808080;
+    }
+
+    QLineEdit:disabled {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }</string>
+     </property>
+     <property name="text">
+      <string>444</string>
+     </property>
+     <property name="maxLength">
+      <number>3</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="port_input">
+     <property name="geometry">
+      <rect>
+       <x>908</x>
+       <y>552</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Light</family>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">    QLineEdit {
+    	background-color: #202020;
+        border: 1px solid #288A55;
+        border-radius: 4px;
+        color: #808080;
+    }
+
+    QLineEdit:disabled {
+    	background-color: #202020;
+        border: 1px solid #606060;
+        border-radius: 4px;
+        color: #808080;
+    }</string>
+     </property>
+     <property name="text">
+      <string>44444</string>
+     </property>
+     <property name="maxLength">
+      <number>5</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="ip_dots">
+     <property name="geometry">
+      <rect>
+       <x>783</x>
+       <y>555</y>
+       <width>5</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Medium</family>
+       <pointsize>11</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color:#656565;
+background:transparent;</string>
+     </property>
+     <property name="text">
+      <string>.</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="port_dots">
+     <property name="geometry">
+      <rect>
+       <x>903</x>
+       <y>551</y>
+       <width>5</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Medium</family>
+       <pointsize>11</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color:#656565;
+background:transparent;</string>
+     </property>
+     <property name="text">
+      <string>:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="ip_dots_2">
+     <property name="geometry">
+      <rect>
+       <x>823</x>
+       <y>555</y>
+       <width>5</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Medium</family>
+       <pointsize>11</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color:#656565;
+background:transparent;</string>
+     </property>
+     <property name="text">
+      <string>.</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="ip_dots_3">
+     <property name="geometry">
+      <rect>
+       <x>863</x>
+       <y>555</y>
+       <width>5</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Medium</family>
+       <pointsize>11</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color:#656565;
+background:transparent;</string>
+     </property>
+     <property name="text">
+      <string>.</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
     </widget>
    </widget>

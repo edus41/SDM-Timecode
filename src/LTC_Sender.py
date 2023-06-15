@@ -1,4 +1,5 @@
-from multiprocessing import Process
+from multiprocess import Process
+import multiprocess
 import pyaudio
 from tools import *
 import time
@@ -13,6 +14,7 @@ class LTC_Sender(Process):
     
     def __init__(self, ltc_pipe):
         Process.__init__(self)
+        self.is_running = True
         self.pipe = ltc_pipe
         self.stream = None
         
@@ -20,7 +22,7 @@ class LTC_Sender(Process):
         self.is_playing = False
         self.ltc_is_on = False
         self.ltc_output_device = 0
-        self.ltc_fps = 25
+        self.ltc_fps = 24
         self.ltc_offset = 0
         self.timecode = 0
         self.ltc_timecode = 0
@@ -34,7 +36,7 @@ class LTC_Sender(Process):
         self.outputs = self.get_output_devices()
         self.ltc_output_device = next(iter(self.outputs))
         
-        while True:
+        while self.is_running:
             last_frames_totales = -1
             while self.ltc_is_on and self.is_playing:
                 frames_totales = int(self.timecode * self.ltc_fps)
@@ -82,7 +84,6 @@ class LTC_Sender(Process):
                 output_devices[device_id] = name
         return output_devices
     
-    
     def configurar_formato(self, rate=44100, bits=16, channels=2):
 
         self.format = self.p.get_format_from_width(bits // 8)
@@ -105,18 +106,10 @@ class LTC_Sender(Process):
             self.stream.stop_stream()
             self.stream.close()
         self.stream = None
-            
-    def close(self):
-        if self.stream:
-            self.stream.stop_stream()
-            self.stream.close()
-            self.stream = None
-        self.p.terminate()
-        self.p = None
-    
+
     # COMINICATION
     def recive_data(self):
-        while True:
+        while self.is_running:
             recive_data = self.pipe.recv()
             if 'is_playing' in recive_data:
                 self.is_playing = recive_data["is_playing"]
@@ -136,4 +129,20 @@ class LTC_Sender(Process):
                 
             if 'tc' in recive_data:
                 self.timecode = recive_data["tc"]
-
+                
+            if 'is_running' in recive_data:
+                self.close()  
+    # END
+    def close(self):
+        self.is_running = False
+        self.is_playing = False
+        if self.stream:
+            self.stream.stop_stream()
+            self.stream.close()
+            self.stream = None
+        if self.p is not None:
+            self.p.close()
+            self.p = None
+        self.recive_thread.join()
+        proceso_actual = multiprocess.current_process()
+        proceso_actual.terminate()  

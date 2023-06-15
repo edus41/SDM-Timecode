@@ -1,6 +1,4 @@
 import numpy as np
-import time
-
 
 def bitstring_to_bytes(s, bytecount=1, byteorder="big"):
     return int(s, 2).to_bytes(bytecount, byteorder)

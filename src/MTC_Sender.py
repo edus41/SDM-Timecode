@@ -1,4 +1,5 @@
-from multiprocessing import Process
+from multiprocess import Process
+import multiprocess
 import pygame.midi
 from tools import *
 import time
@@ -11,6 +12,7 @@ class MTC_Sender(Process):
     
     def __init__(self,mtc_pipe):
         Process.__init__(self)
+        self.is_running = True
         self.pipe = mtc_pipe
         self.midi_out = None
         
@@ -34,7 +36,7 @@ class MTC_Sender(Process):
         self.current_output_device_index = next(iter(self.output_devices))
         self.midi_out = pygame.midi.Output(self.current_output_device_index)
         
-        while True:
+        while self.is_running:
             last_frames_totales = -1
             while self.mtc_is_on and self.is_playing:
                 frames_totales = int(self.timecode * self.mtc_fps)
@@ -62,7 +64,7 @@ class MTC_Sender(Process):
         pygame.midi.init()
         self.midi_out = pygame.midi.Output(device_index)
         self.current_output_device_index = device_index
-        print(f"new: {device_index} : {pygame.midi.get_device_info(device_index)[1]}")
+        print(f"Dispositivo de salida configurado: {pygame.midi.get_device_info(device_index)[1].decode()}")
     
     def sendMTC(self,timecode):
         timecode_str = str(timecode)
@@ -95,7 +97,7 @@ class MTC_Sender(Process):
 
     # COMINICATION
     def recive_data(self):
-        while True:
+        while self.is_running:
             recive_data = self.pipe.recv()
             
             if 'is_playing' in recive_data:
@@ -116,3 +118,17 @@ class MTC_Sender(Process):
                 
             if 'tc' in recive_data:
                 self.timecode = recive_data["tc"]
+                
+            if 'is_running' in recive_data:
+                self.close()  
+    # END
+    def close(self):
+        self.is_running = False
+        self.is_playing = False
+        if self.midi_out:
+            self.midi_out.close()
+            self.midi_out = None
+        pygame.midi.quit()
+        self.recive_thread.join()
+        proceso_actual = multiprocess.current_process()
+        proceso_actual.terminate() 
