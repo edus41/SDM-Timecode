@@ -1,4 +1,5 @@
-from multiprocess import Process, Pipe
+from multiprocessing import Process, Pipe
+import multiprocessing
 from Network import *
 from GUI import *
 from Player import *
@@ -9,14 +10,14 @@ def close(proceso):
     if proceso.is_alive():
         proceso.terminate()
         proceso.join()
-
+        
 ##############################################
 ##------------------ MAIN ------------------##
 ##############################################
 
 if __name__ == "__main__":
     try:
-        multiprocess.freeze_support()
+        multiprocessing.freeze_support()
             
         gui_pipe, network_pipe = Pipe()
         gui_pipe2, player_pipe = Pipe()
@@ -46,5 +47,7 @@ if __name__ == "__main__":
                 close(gui)
                 break
             time.sleep(1)
+            
     except Exception as e:
         print(f"[MAIN ERROR]: {e}")
+        

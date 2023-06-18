@@ -1,12 +1,11 @@
 import socket
 import wmi
+import re
 
-def is_ipv4_address(ip):
-    try:
-        socket.inet_pton(socket.AF_INET, ip)
-        return True
-    except socket.error:
-        return False
+def is_ip_address(ip):
+    ipv4_pattern = r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+    return bool(re.match(ipv4_pattern, ip))
+
 
 def get_network_interfaces():
     wmi_obj = wmi.WMI()
@@ -17,7 +16,7 @@ def get_network_interfaces():
 
 def get_ip_addresses(interface):
     ips = interface.IPAddress
-    ipv4_addresses = [ip for ip in ips if is_ipv4_address(ip)]
+    ipv4_addresses = [ip for ip in ips if is_ip_address(ip)]
     return ipv4_addresses
 
 def get_interface_name(interface):

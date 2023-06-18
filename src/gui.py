@@ -4,23 +4,22 @@ import os
 
 from PyQt5 import uic, QtCore,QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog,QMessageBox
-from PyQt5.QtCore import QRunnable, pyqtSlot, QThreadPool,QThread, pyqtSignal
+from PyQt5.QtCore import QRunnable, pyqtSlot, QThreadPool
 from PyQt5.QtGui import QPixmap, QPainter, QColor
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 
 from socket import *
 import sounddevice as sd
 from functools import partial
 
 from tools import *
-from get_nets import get_nets
+from get_nets import get_nets,is_ip_address
 
 ##############################################
 ##------------------- GUI ------------------##
 ##############################################
 
 class GUI(QMainWindow):
-
     def __init__(self, network_pipe, player_pipe, ltc_pipe, mtc_pipe, main_pipe):#TEST
         super(GUI,self).__init__()
         uic.loadUi("gui.ui",self)
@@ -94,19 +93,20 @@ class GUI(QMainWindow):
         self.ltc_pipe = ltc_pipe
         self.mtc_pipe = mtc_pipe
         
-        self.update_thread = UpdateTcLabelsThread()
-        self.update_thread.update_signal.connect(self.update_tc_labels)
-        self.update_thread.start()
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_tc_labels)
+        self.timer.setInterval(100)
+        self.timer.start()
         
         self.thread_pool = QThreadPool()
         
-        self.recv_server_thread = GUI_Recv(self.recv_server_data)
+        self.recv_server_thread = GUI_send_recv(self.recv_server_data)
         self.thread_pool.start(self.recv_server_thread)
-        
-        self.recv_player_thread = GUI_Recv(self.recv_player_data)
+
+        self.recv_player_thread = GUI_send_recv(self.recv_player_data)
         self.thread_pool.start(self.recv_player_thread)
-        
-        self.send_thread = GUI_Recv(self.send_data_to_process)
+
+        self.send_thread = GUI_send_recv(self.send_data_to_process)
         self.thread_pool.start(self.send_thread)
 
     def func_init(self): #TEST
@@ -158,9 +158,15 @@ class GUI(QMainWindow):
         
         if self.nets:
             ip = str(next(iter(self.nets.values())))
-            ip1,ip2,ip3,ip4 = ip.split(".")
+            if is_ip_address(ip):
+                ip_components = ip.split(".")
+                ip1, ip2, ip3, ip4 = ip_components
+            else:
+                print("La dirección IP no es válida")
+                # Realiza alguna acción para manejar el caso de una dirección IP no válida
         else:
-            ip1,ip2,ip3,ip4 = self.host.split(".")
+            ip_components = self.host.split(".")
+            ip1, ip2, ip3, ip4 = ip_components
             
         self.ip_1.setText(ip1)
         self.ip_2.setText(ip2)
@@ -179,7 +185,7 @@ class GUI(QMainWindow):
         self.remaning_tc.setText(str(secs_to_tc(86400)))
         
         # ICON
-        pixmap = QPixmap("C:/Users/Eduardo Rodriguez/Desktop/Timecode 0.5/src/img/icon.ico")
+        pixmap = QPixmap("img/icon.ico")
         pixmap_redimensionado = pixmap.scaled(15, 15) 
         transparencia = 150
         painter = QPainter(pixmap_redimensionado)
@@ -203,7 +209,6 @@ class GUI(QMainWindow):
     def close_app(self): #TEST
         self.is_running = False
         self.main_pipe.send({"finish":True})
-        self.update_thread.stop()
 
     # ---------------- BUTTONS FUNCTIONS
 
@@ -606,261 +611,266 @@ class GUI(QMainWindow):
     # ---------------- THREAD FUNCTIONS (PIPES COMUNICATION)
 
     def send_play_status(self):
-        data_to_send = {"is_playing":self.is_playing}
-        if self.mode == "master":
-            self.player_pipe.send(data_to_send)
-        self.ltc_pipe.send(data_to_send)
-        self.mtc_pipe.send(data_to_send)
+        try:
+            data_to_send = {"is_playing":self.is_playing}
+            if self.mode == "master":
+                self.player_pipe.send(data_to_send)
+            self.ltc_pipe.send(data_to_send)
+            self.mtc_pipe.send(data_to_send)
+        except Exception as e:
+            print(f"[ERROR GUI]: {e}")
 
     def send_data_to_process(self): #THREAD
-        
-        # SEND CONFIRMATIONS
-        last_is_running = self.is_running
-        last_audio_device = self.audio_device
-        last_gain = self.gain
-        
-        last_host = self.host
-        last_port = self.port
-        last_network_is_on = self.network_is_on
-        last_timecode = self.timecode
-        last_mode = self.mode
-        
-        last_ltc_output_device = self.ltc_output_device
-        last_ltc_fps = self.ltc_fps
-        last_ltc_offset = self.ltc_offset
-        last_ltc_is_on = self.ltc_is_on
-        
-        last_mtc_output_device = self.mtc_output_device
-        last_mtc_fps = self.mtc_fps
-        last_mtc_offset = self.mtc_offset
-        last_mtc_is_on = self.mtc_is_on
-        
-        while self.is_running:
-            data_to_send = {}
+        try:
+            # SEND CONFIRMATIONS
+            last_is_running = self.is_running
+            last_audio_device = self.audio_device
+            last_gain = self.gain
             
-            if last_timecode != self.timecode:
-                data_to_send['tc'] = self.timecode
-                if self.mode == "master":
-                    self.server_pipe.send(data_to_send)
-                self.ltc_pipe.send(data_to_send)
-                self.mtc_pipe.send(data_to_send)
-                last_timecode = self.timecode
-                 
-            if last_audio_device != self.audio_device:
-                data_to_send['audio_device'] = self.audio_device
-                self.player_pipe.send(data_to_send)        
-                last_audio_device = self.audio_device         
+            last_host = self.host
+            last_port = self.port
+            last_network_is_on = self.network_is_on
+            last_timecode = self.timecode
+            last_mode = self.mode
+            
+            last_ltc_output_device = self.ltc_output_device
+            last_ltc_fps = self.ltc_fps
+            last_ltc_offset = self.ltc_offset
+            last_ltc_is_on = self.ltc_is_on
+            
+            last_mtc_output_device = self.mtc_output_device
+            last_mtc_fps = self.mtc_fps
+            last_mtc_offset = self.mtc_offset
+            last_mtc_is_on = self.mtc_is_on
+            
+            while self.is_running:
+                data_to_send = {}
                 
-            if last_gain != self.gain:
-                data_to_send['gain'] = self.gain
-                self.player_pipe.send(data_to_send)          
-                last_gain = self.gain        
+                if last_timecode != self.timecode:
+                    data_to_send['tc'] = self.timecode
+                    if self.mode == "master":
+                        self.server_pipe.send(data_to_send)
+                    self.ltc_pipe.send(data_to_send)
+                    self.mtc_pipe.send(data_to_send)
+                    last_timecode = self.timecode
+                    
+                if last_audio_device != self.audio_device:
+                    data_to_send['audio_device'] = self.audio_device
+                    self.player_pipe.send(data_to_send)        
+                    last_audio_device = self.audio_device         
+                    
+                if last_gain != self.gain:
+                    data_to_send['gain'] = self.gain
+                    self.player_pipe.send(data_to_send)          
+                    last_gain = self.gain        
+                    
+                if last_host != self.host:
+                    data_to_send['host'] = self.host
+                    self.server_pipe.send(data_to_send)        
+                    last_host = self.host
+                    
+                if last_port != self.port:
+                    data_to_send['port'] = self.port
+                    self.server_pipe.send(data_to_send)         
+                    last_port = self.port
+                    
+                if last_network_is_on != self.network_is_on:
+                    data_to_send['network_is_on'] = self.network_is_on
+                    self.server_pipe.send(data_to_send)        
+                    last_network_is_on = self.network_is_on 
+                    
+                if last_mode != self.mode:
+                    data_to_send['mode'] = self.mode
+                    self.server_pipe.send(data_to_send)         
+                    last_mode = self.mode   
+                    
+                if last_ltc_is_on != self.ltc_is_on:
+                    data_to_send['ltc_is_on'] = self.ltc_is_on
+                    self.ltc_pipe.send(data_to_send)          
+                    last_ltc_is_on = self.ltc_is_on   
+                    
+                if last_ltc_output_device != self.ltc_output_device:
+                    data_to_send['ltc_output_device'] = self.ltc_output_device
+                    self.ltc_pipe.send(data_to_send)           
+                    last_ltc_output_device = self.ltc_output_device 
+                    
+                if last_ltc_fps != self.ltc_fps:
+                    data_to_send['ltc_fps'] = self.ltc_fps
+                    self.ltc_pipe.send(data_to_send)   
+                    last_ltc_fps = self.ltc_fps
+                    
+                if last_ltc_offset != self.ltc_offset:
+                    data_to_send['ltc_offset'] = self.ltc_offset
+                    self.ltc_pipe.send(data_to_send)   
+                    last_ltc_offset = self.ltc_offset
+                    
+                if last_mtc_is_on != self.mtc_is_on:
+                    data_to_send['mtc_is_on'] = self.mtc_is_on
+                    self.mtc_pipe.send(data_to_send)           
+                    last_mtc_is_on = self.mtc_is_on   
+                    
+                if last_mtc_output_device != self.mtc_output_device:
+                    data_to_send['mtc_output_device'] = self.mtc_output_device
+                    self.mtc_pipe.send(data_to_send)           
+                    last_mtc_output_device = self.mtc_output_device
+                    
+                if last_mtc_fps != self.mtc_fps:
+                    data_to_send['mtc_fps'] = self.mtc_fps
+                    self.mtc_pipe.send(data_to_send)   
+                    last_mtc_fps = self.mtc_fps 
+                    
+                if last_mtc_offset != self.mtc_offset:
+                    data_to_send['mtc_offset'] = self.mtc_offset
+                    self.mtc_pipe.send(data_to_send)   
+                    last_mtc_offset = self.mtc_offset
+                    
+                if last_is_running != self.is_running:
+                    data_to_send['is_running'] = self.is_running
+                    self.server_pipe.send(data_to_send)   
+                    self.player_pipe.send(data_to_send) 
+                    self.ltc_pipe.send(data_to_send) 
+                    self.mtc_pipe.send(data_to_send) 
+                    last_is_running = self.is_running
                 
-            if last_host != self.host:
-                data_to_send['host'] = self.host
-                self.server_pipe.send(data_to_send)        
-                last_host = self.host
+                time.sleep(0.01)
                 
-            if last_port != self.port:
-                data_to_send['port'] = self.port
-                self.server_pipe.send(data_to_send)         
-                last_port = self.port
-                
-            if last_network_is_on != self.network_is_on:
-                data_to_send['network_is_on'] = self.network_is_on
-                self.server_pipe.send(data_to_send)        
-                last_network_is_on = self.network_is_on 
-                
-            if last_mode != self.mode:
-                data_to_send['mode'] = self.mode
-                self.server_pipe.send(data_to_send)         
-                last_mode = self.mode   
-                
-            if last_ltc_is_on != self.ltc_is_on:
-                data_to_send['ltc_is_on'] = self.ltc_is_on
-                self.ltc_pipe.send(data_to_send)          
-                last_ltc_is_on = self.ltc_is_on   
-                
-            if last_ltc_output_device != self.ltc_output_device:
-                data_to_send['ltc_output_device'] = self.ltc_output_device
-                self.ltc_pipe.send(data_to_send)           
-                last_ltc_output_device = self.ltc_output_device 
-                
-            if last_ltc_fps != self.ltc_fps:
-                data_to_send['ltc_fps'] = self.ltc_fps
-                self.ltc_pipe.send(data_to_send)   
-                last_ltc_fps = self.ltc_fps
-                
-            if last_ltc_offset != self.ltc_offset:
-                data_to_send['ltc_offset'] = self.ltc_offset
-                self.ltc_pipe.send(data_to_send)   
-                last_ltc_offset = self.ltc_offset
-                
-            if last_mtc_is_on != self.mtc_is_on:
-                data_to_send['mtc_is_on'] = self.mtc_is_on
-                self.mtc_pipe.send(data_to_send)           
-                last_mtc_is_on = self.mtc_is_on   
-                
-            if last_mtc_output_device != self.mtc_output_device:
-                data_to_send['mtc_output_device'] = self.mtc_output_device
-                self.mtc_pipe.send(data_to_send)           
-                last_mtc_output_device = self.mtc_output_device
-                
-            if last_mtc_fps != self.mtc_fps:
-                data_to_send['mtc_fps'] = self.mtc_fps
-                self.mtc_pipe.send(data_to_send)   
-                last_mtc_fps = self.mtc_fps 
-                
-            if last_mtc_offset != self.mtc_offset:
-                data_to_send['mtc_offset'] = self.mtc_offset
-                self.mtc_pipe.send(data_to_send)   
-                last_mtc_offset = self.mtc_offset
-                
-            if last_is_running != self.is_running:
-                data_to_send['is_running'] = self.is_running
-                self.server_pipe.send(data_to_send)   
-                self.player_pipe.send(data_to_send) 
-                self.ltc_pipe.send(data_to_send) 
-                self.mtc_pipe.send(data_to_send) 
-                last_is_running = self.is_running
-            time.sleep(0.01)
+        except Exception as e:
+            print(f"[ERROR GUI]: {e}")
 
     def recv_server_data(self): #THREAD
-        
-        last_timecode = self.timecode
-        self.users_label.setText("0")
-        
-        while self.is_running:
-            
-            network_recv_data = self.server_pipe.recv()
+        try:
+            self.users_label.setText("0")            
+            while self.is_running:
+                
+                network_recv_data = self.server_pipe.recv()
 
-            if 'online' in network_recv_data:
-                self.online = network_recv_data["online"]
-                
-            if 'error' in network_recv_data:
-                self.server_error = network_recv_data["error"]
-            if 'clients' in network_recv_data:
-                self.clients = network_recv_data["clients"]
-                self.users_label.setText(str(len(self.clients)))
-            if 'timecode_recv' in network_recv_data and self.mode == "slave":
-                self.timecode = network_recv_data["timecode_recv"]
-                #self.update_tc_labels()     
-            
-            if last_timecode != self.timecode and self.mode == "slave":
-                last_timecode = self.timecode
-                
-            if self.online and self.network_is_on:
-                if self.mode=="master":
-                    self.connect_button.setText("SENDING")
-                    self.users_icon.setVisible(True)
-                    self.users_label.setVisible(True)
-                elif self.mode=="slave":
-                    self.connect_button.setText("LISTENING")
+                if 'online' in network_recv_data:
+                    self.online = network_recv_data["online"]
+                    
+                if 'error' in network_recv_data:
+                    self.server_error = network_recv_data["error"]
+                    
+                if 'clients' in network_recv_data:
+                    self.clients = network_recv_data["clients"]
+                    self.users_label.setText(str(len(self.clients)))
+                    
+                if 'timecode_recv' in network_recv_data and self.mode == "slave":
+                    self.timecode = network_recv_data["timecode_recv"]
+                    
+                if self.online and self.network_is_on:
+                    if self.mode=="master":
+                        self.connect_button.setText("SENDING")
+                        self.users_icon.setVisible(True)
+                        self.users_label.setVisible(True)
+                    elif self.mode=="slave":
+                        self.connect_button.setText("LISTENING")
+                        self.users_icon.setVisible(False)
+                        self.users_label.setVisible(False)
+                    self.connect_button.setStyleSheet(online_button_style)
+                    self.error_label.setVisible(False)
+                    self.error_label.setText(self.server_error)
+                    
+                elif not self.online and self.network_is_on and self.server_error is not None:
+                    
+                    if self.server_error == "SERVER NOT FOUND":
+                        self.connect_button.setText("TRYING")
+                        self.connect_button.setStyleSheet(connecting_button_style)
+                        
+                    else:
+                        self.connect_button.setText("ERROR")
+                        self.connect_button.setStyleSheet(offline_button_style)
                     self.users_icon.setVisible(False)
                     self.users_label.setVisible(False)
-                self.connect_button.setStyleSheet(online_button_style)
-                self.error_label.setVisible(False)
-                self.error_label.setText(self.server_error)
+                    self.error_label.setVisible(True)
+                    self.error_label.setText(self.server_error)
                 
-            elif not self.online and self.network_is_on and self.server_error is not None:
-                if self.server_error == "SERVER NOT FOUND":
-                    self.connect_button.setText("TRYING")
-                    self.connect_button.setStyleSheet(connecting_button_style)
-                else:
-                    self.connect_button.setText("ERROR")
-                    self.connect_button.setStyleSheet(offline_button_style)
-                self.users_icon.setVisible(False)
-                self.users_label.setVisible(False)
-                self.error_label.setVisible(True)
-                self.error_label.setText(self.server_error)
-            time.sleep(0.01)
+        except Exception as e:
+            print(f"[ERROR GUI]: {e}")
 
     def recv_player_data(self): #THREAD
-        last_timecode = self.timecode
-        while self.is_running:
-            
-            player_recv_data = self.player_pipe.recv()
-            
-            if 'tc' in player_recv_data and self.mode == "master":
-                self.timecode = player_recv_data["tc"]
-                #self.update_tc_labels()
-                if self.timecode == self.audio_total_duration:
-                    self.stop()
+        try:
+            while self.is_running:
                 
-            if 'total_duration' in player_recv_data:
-                self.audio_total_duration = player_recv_data["total_duration"]
-                if self.audio_total_duration is not None:
-                    self.remaining_time = self.audio_total_duration
-                    self.remaning_tc.setText(str(secs_to_tc(self.audio_total_duration - self.timecode))) 
-                else:
-                    self.remaining_time = 86400
-                    self.remaning_tc.setText(str(secs_to_tc(86400 - self.timecode))) 
-            
-            if last_timecode != self.timecode and self.mode == "master":
-                last_timecode = self.timecode
-            time.sleep(0.01)
+                player_recv_data = self.player_pipe.recv()
+                
+                if 'tc' in player_recv_data and self.mode == "master":
+                    self.timecode = player_recv_data["tc"]
+
+                    if self.timecode == self.audio_total_duration:
+                        self.stop()
+                    
+                if 'total_duration' in player_recv_data:
+                    self.audio_total_duration = player_recv_data["total_duration"]
+                    if self.audio_total_duration is not None:
+                        self.remaining_time = self.audio_total_duration
+                        self.remaning_tc.setText(str(secs_to_tc(self.audio_total_duration - self.timecode))) 
+                    else:
+                        self.remaining_time = 86400
+                        self.remaning_tc.setText(str(secs_to_tc(86400 - self.timecode))) 
+                
+        except Exception as e:
+            print(f"[ERROR GUI]: {e}")
 
     def recv_ltc_data(self): #THREAD
-        recive_data = self.mtc_pipe.recv()
-        
-        if 'ltc_devices' in recive_data:
-            self.ltc_outputs = recive_data["ltc_devices"]
-            if self.ltc_outputs != {}:
-                self.ltc_output_combo_box.clear()
-                self.ltc_output_combo_box.addItems(list(self.ltc_outputs.values()))
+        try:
+            recive_data = self.mtc_pipe.recv()
+            
+            if 'ltc_devices' in recive_data:
+                self.ltc_outputs = recive_data["ltc_devices"]
+                if self.ltc_outputs != {}:
+                    self.ltc_output_combo_box.clear()
+                    self.ltc_output_combo_box.addItems(list(self.ltc_outputs.values()))
+        except Exception as e:
+            print(f"[ERROR GUI]: {e}")
 
     def recv_mtc_data(self): #THREAD
-        recive_data = self.mtc_pipe.recv()
-        
-        if 'mtc_devices' in recive_data:
-            self.mtc_outputs = recive_data["mtc_devices"]
-            if self.mtc_outputs != {}:
-                self.mtc_output_combo_box.clear()
-                self.mtc_output_combo_box.addItems(list(self.mtc_outputs.values()))
+        try:
+            recive_data = self.mtc_pipe.recv()
+            
+            if 'mtc_devices' in recive_data:
+                self.mtc_outputs = recive_data["mtc_devices"]
+                if self.mtc_outputs != {}:
+                    self.mtc_output_combo_box.clear()
+                    self.mtc_output_combo_box.addItems(list(self.mtc_outputs.values()))
+        except Exception as e:
+            print(f"[ERROR GUI]: {e}")
 
     # ---------------- UPDATES FUNCTIONS
-    
-    def update_tc_labels(self): # THREAD
-        self.tc_label.setText(str(secs_to_tc(self.timecode)))
+            
+    def update_tc_labels(self):
+        tc = secs_to_tc(self.timecode)
+        self.tc_label.setText(str(tc))
+
+        if self.audio_total_duration is None:
+            remaining_tc = secs_to_tc(86400 - self.timecode)
+        else:
+            remaining_tc = secs_to_tc(self.audio_total_duration - self.timecode)
+        self.remaning_tc.setText(str(remaining_tc))
         
         if self.ltc_is_on:
-            self.ltc_tc_label.setText(str(secs_to_tc(self.timecode + self.ltc_offset,self.ltc_fps)))
-        if self.mtc_is_on:
-            self.mtc_tc_label.setText(str(secs_to_tc(self.timecode + self.mtc_offset,self.mtc_fps))) 
-            
-        if self.audio_total_duration is None:
-            self.remaning_tc.setText(str(secs_to_tc(86400 - self.timecode)))
-        else:
-            self.remaning_tc.setText(str(secs_to_tc(self.audio_total_duration - self.timecode)))
+            ltc_tc = secs_to_tc(self.timecode + self.ltc_offset, self.ltc_fps)
+            self.ltc_tc_label.setText(str(ltc_tc))
         
+        if self.mtc_is_on:
+            mtc_tc = secs_to_tc(self.timecode + self.mtc_offset, self.mtc_fps)
+            self.mtc_tc_label.setText(str(mtc_tc))
+
 ##############################################
 ##---------------- THREAD ------------------##
 ##############################################
 
-class UpdateTcLabelsThread(QThread):
-    update_signal = pyqtSignal()
-
-    def __init__(self):
-        super().__init__()
-        self.is_running = True
-
-    def run(self):
-        while self.is_running:
-            self.update_signal.emit()
-            self.msleep(50)
-
-    def stop(self):
-        self.is_running = False
-
-class GUI_Recv(QRunnable):
+class GUI_send_recv(QRunnable):
     
     def __init__(self, InFunc):
-        super(GUI_Recv, self).__init__()
+        super(GUI_send_recv, self).__init__()
         self.Func = InFunc
 
     @pyqtSlot(name="1")
     def run(self): #TEST
-        self.Func()
+        try:
+            self.Func()
+        except Exception as e:
+            print(f"[ERROR GUI]: {e}")
 
 ##############################################
 ##---------------- STYLES ------------------##
@@ -1000,9 +1010,10 @@ message_box_style="""
 ##############################################
 
 def UI(server_pipe, player_pipe,ltc_pipe,mtc_pipe,main_pipe):
-    mainApp = QApplication(sys.argv)
-    app = GUI(server_pipe,player_pipe,ltc_pipe,mtc_pipe,main_pipe)
-    mainApp.exec_()
-    
-    while True:
-        app.processEvents()    
+    try:
+        mainApp = QApplication(sys.argv)
+        app = GUI(server_pipe,player_pipe,ltc_pipe,mtc_pipe,main_pipe)
+        mainApp.exec_()
+   
+    except Exception as e:
+        print(f"[ERROR GUI]: {e}")
