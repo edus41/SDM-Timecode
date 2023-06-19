@@ -8,8 +8,10 @@ import sounddevice as sd
 from tools import *
 import os
 import datetime
-#from pydub import AudioSegment
+import subprocess
 import soundfile as sf
+import inspect
+
 ##############################################
 ##----------------- PLAYER -----------------##
 ##############################################
@@ -17,26 +19,30 @@ import soundfile as sf
 class Player(Process):
     
     def __init__(self, player_pipe):
-        Process.__init__(self)
-        self.pipe = player_pipe
-        self.fps = 99
-        self.stream = None
-        self.time_start = 0
-        self.audio_data = None
-        self.sample_rate = None
-        self.paused_sample = 0
-        self.current_sample = 0
-        
-        #  SEND
-        self.timecode = 0
-        self.audio_total_duration = 0
-        
-        # PLAYER RECV
-        self.is_running = True
-        self.is_playing = False
-        self.audio_device = None
-        self.gain = 0.8
-        self.file_path = None
+        try:
+            Process.__init__(self)
+            self.pipe = player_pipe
+            self.fps = 99
+            self.stream = None
+            self.time_start = 0
+            self.audio_data = None
+            self.sample_rate = None
+            self.paused_sample = 0
+            self.current_sample = 0
+            
+            #  SEND
+            self.timecode = 0
+            self.audio_total_duration = 0
+            
+            # PLAYER RECV
+            self.is_running = True
+            self.is_playing = False
+            self.audio_device = None
+            self.gain = 0.8
+            self.file_path = None
+            
+        except Exception as e:
+            log(f"[ERROR PLAYER {inspect.currentframe().f_code.co_name}]: {e}")
 
     def run(self):
         try:
@@ -53,7 +59,7 @@ class Player(Process):
                         self.play_tc()
                 time.sleep(0.1)
         except Exception as e:
-            print(f"[ERROR PLAYER]: {e}")
+            log(f"[ERROR PLAYER {inspect.currentframe().f_code.co_name}]: {e}")
 
     def play_tc(self):
         try:
@@ -62,7 +68,7 @@ class Player(Process):
                 time.sleep(1 / self.fps)
             time.sleep(0.1)
         except Exception as e:
-            print(f"[ERROR PLAYER]: {e}")
+            log(f"[ERROR PLAYER {inspect.currentframe().f_code.co_name}]: {e}")
         
     def play_audio(self):
         try:
@@ -77,7 +83,7 @@ class Player(Process):
                 while self.is_playing and self.current_sample < len(self.audio_data) and self.is_running:
                     time.sleep(0.01)
         except Exception as e:
-            print(f"[ERROR PLAYER]: {e}")
+            log(f"[ERROR PLAYER {inspect.currentframe().f_code.co_name}]: {e}")
 
     def audio_callback(self, outdata, ff, time, status):#OK
         try:
@@ -96,7 +102,7 @@ class Player(Process):
                         (ff, 2),
                     ) * 0
         except Exception as e:
-            print(f"[ERROR PLAYER]: {e}")
+            log(f"[ERROR PLAYER {inspect.currentframe().f_code.co_name}]: {e}")
 
     def play_pause(self):
         self.time_start = time.time() - self.timecode   
@@ -112,7 +118,7 @@ class Player(Process):
                 self.time_start = time.time() - elapsed_time 
                 self.timecode = elapsed_time
         except Exception as e:
-            print(f"[ERROR PLAYER]: {e}")
+            log(f"[ERROR PLAYER {inspect.currentframe().f_code.co_name}]: {e}")
             
     def forward(self):
         if self.audio_data is None:
@@ -154,12 +160,13 @@ class Player(Process):
 
                 if file_extension == '.wav':
                     audio_data, sample_rate = sf.read(self.file_path)
-                #elif file_extension == '.mp3':
-                #    audio = AudioSegment.from_mp3(self.file_path)
-                #    temp_file_path = 'temp.wav'
-                #    audio.export(temp_file_path, format='wav')
-                #    audio_data, sample_rate = sf.read(temp_file_path)
-                #    os.remove(temp_file_path)
+                
+                elif file_extension == '.mp3':
+                    temp_file_path = 'temp.wav'
+                    command = ['ffmpeg', '-i', self.file_path, temp_file_path]
+                    subprocess.run(command, shell=True, capture_output=True)
+                    audio_data, sample_rate = sf.read(temp_file_path)
+                    os.remove(temp_file_path)
                 else:
                     raise ValueError('Formato de archivo no válido.')
                 
@@ -169,7 +176,7 @@ class Player(Process):
                 self.sample_rate = sample_rate
                 
         except Exception as e:
-            print('[OPEN AUDIO ERROR]:', str(e))
+            log('[OPEN AUDIO ERROR]:', str(e))
 
     def close_audio(self):
         try:
@@ -177,7 +184,7 @@ class Player(Process):
             self.sample_rate = None
             self.pipe.send({"total_duration":None})
         except Exception as e:
-            print(f"[ERROR PLAYER]: {e}")
+            log(f"[ERROR PLAYER {inspect.currentframe().f_code.co_name}]: {e}")
 
     # COMINICATION
     def recive_data(self):
@@ -225,7 +232,7 @@ class Player(Process):
                     self.gain = recive_data["gain"] 
                     
         except Exception as e:
-            print(f"[ERROR PLAYER]: {e}")
+            log(f"[ERROR PLAYER {inspect.currentframe().f_code.co_name}]: {e}")
             
     def send_data(self):
         try:
@@ -243,7 +250,7 @@ class Player(Process):
                     self.pipe.send(data_to_send)
                     
         except Exception as e:
-            print(f"[ERROR PLAYER]: {e}")
+            log(f"[ERROR PLAYER {inspect.currentframe().f_code.co_name}]: {e}")
     # END
     def close(self):
         try:
@@ -253,4 +260,4 @@ class Player(Process):
             proceso_actual = multiprocessing.current_process()
             proceso_actual.terminate()  
         except Exception as e:
-            print(f"[ERROR PLAYER]: {e}")
+            log(f"[ERROR PLAYER {inspect.currentframe().f_code.co_name}]: {e}")

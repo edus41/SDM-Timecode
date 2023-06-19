@@ -5,6 +5,7 @@ from tools import *
 import time
 from LTC_Generator import make_ltc_audio
 from threading import Thread
+import inspect
 
 ##############################################
 ##--------------- LTC SENDER ---------------##
@@ -13,19 +14,22 @@ from threading import Thread
 class LTC_Sender(Process):
     
     def __init__(self, ltc_pipe):
-        Process.__init__(self)
-        self.is_running = True
-        self.pipe = ltc_pipe
-        self.stream = None
-        
-        # RECV
-        self.is_playing = False
-        self.ltc_is_on = False
-        self.ltc_output_device = 0
-        self.ltc_fps = 24
-        self.ltc_offset = 0
-        self.timecode = 0
-        self.ltc_timecode = 0
+        try:
+            Process.__init__(self)
+            self.is_running = True
+            self.pipe = ltc_pipe
+            self.stream = None
+            
+            # RECV
+            self.is_playing = False
+            self.ltc_is_on = False
+            self.ltc_output_device = 0
+            self.ltc_fps = 24
+            self.ltc_offset = 0
+            self.timecode = 0
+            self.ltc_timecode = 0
+        except Exception as e:
+            log(f"[ERROR LTC {inspect.currentframe().f_code.co_name}]: {e}")
         
     def run (self):
         try:
@@ -49,7 +53,7 @@ class LTC_Sender(Process):
                     time.sleep(0.01)
                 time.sleep(0.1)
         except Exception as e:
-            print(f"[ERROR LTC]: {e}")
+            log(f"[ERROR LTC {inspect.currentframe().f_code.co_name}]: {e}")
         
     def play(self, audio_data):
         try:
@@ -57,28 +61,28 @@ class LTC_Sender(Process):
                 self.abrir_stream()
             self.stream.write(audio_data)
         except Exception as e:
-            print(f"[ERROR LTC]: {e}")
+            log(f"[ERROR LTC {inspect.currentframe().f_code.co_name}]: {e}")
     
     def set_output_device(self, device_index):
         try:
             num_devices = self.p.get_host_api_info_by_index(0).get('deviceCount')        
             if device_index >= num_devices:
-                print(f"El índice del dispositivo ({device_index}) es inválido.")
+                log(f"El índice del dispositivo ({device_index}) es inválido.")
                 return
 
             dispositivo_info = self.p.get_device_info_by_index(device_index)
             if dispositivo_info['maxOutputChannels'] == 0:
-                print("El dispositivo seleccionado no es un dispositivo de salida válido.")
+                log("El dispositivo seleccionado no es un dispositivo de salida válido.")
                 return
                 
             self.ltc_output_device = device_index
-            print(f"Dispositivo de salida configurado: {dispositivo_info['name']}")
+            log(f"Dispositivo de salida configurado: {dispositivo_info['name']}",INFO)
         
             if self.stream:
                 self.cerrar_stream()
                 self.abrir_stream()
         except Exception as e:
-            print(f"[ERROR LTC]: {e}")
+            log(f"[ERROR LTC {inspect.currentframe().f_code.co_name}]: {e}")
     
     def get_output_devices(self):
         try:
@@ -92,7 +96,7 @@ class LTC_Sender(Process):
                     output_devices[device_id] = name
             return output_devices
         except Exception as e:
-            print(f"[ERROR LTC]: {e}")
+            log(f"[ERROR LTC {inspect.currentframe().f_code.co_name}]: {e}")
     
     def configurar_formato(self, rate=44100, bits=16, channels=2):
         try:
@@ -104,7 +108,7 @@ class LTC_Sender(Process):
                 self.cerrar_stream()
                 self.abrir_stream()
         except Exception as e:
-            print(f"[ERROR LTC]: {e}")
+            log(f"[ERROR LTC {inspect.currentframe().f_code.co_name}]: {e}")
      
     def abrir_stream(self):
         try:
@@ -114,7 +118,7 @@ class LTC_Sender(Process):
                     rate = 44100,
                     output = True)
         except Exception as e:
-            print(f"[ERROR LTC]: {e}")
+            log(f"[ERROR LTC {inspect.currentframe().f_code.co_name}]: {e}")
 
     def cerrar_stream(self):
         try:
@@ -123,7 +127,7 @@ class LTC_Sender(Process):
                 self.stream.close()
             self.stream = None
         except Exception as e:
-            print(f"[ERROR LTC]: {e}")
+            log(f"[ERROR LTC {inspect.currentframe().f_code.co_name}]: {e}")
     # COMINICATION
     def recive_data(self):
         try:
@@ -151,7 +155,7 @@ class LTC_Sender(Process):
                 if 'is_running' in recive_data:
                     self.close()  
         except Exception as e:
-            print(f"[ERROR LTC]: {e}")
+            log(f"[ERROR LTC {inspect.currentframe().f_code.co_name}]: {e}")
     # END
     def close(self):
         try:
@@ -168,4 +172,4 @@ class LTC_Sender(Process):
             proceso_actual = multiprocessing.current_process()
             proceso_actual.terminate()  
         except Exception as e:
-            print(f"[ERROR LTC]: {e}")
+            log(f"[ERROR LTC {inspect.currentframe().f_code.co_name}]: {e}")

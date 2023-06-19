@@ -1,10 +1,13 @@
 import time
 import sys
 import os
+import inspect
+
+from concurrent.futures import ThreadPoolExecutor
 
 from PyQt5 import uic, QtCore,QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog,QMessageBox
-from PyQt5.QtCore import QRunnable, pyqtSlot, QThreadPool
+from PyQt5.QtCore import QRunnable, pyqtSlot
 from PyQt5.QtGui import QPixmap, QPainter, QColor
 from PyQt5.QtCore import Qt, QTimer
 
@@ -20,17 +23,23 @@ from get_nets import get_nets,is_ip_address
 ##############################################
 
 class GUI(QMainWindow):
+
     def __init__(self, network_pipe, player_pipe, ltc_pipe, mtc_pipe, main_pipe):#TEST
-        super(GUI,self).__init__()
-        uic.loadUi("gui.ui",self)
-        self.setWindowTitle("TEST")
-        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
-        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)  
-        self.var_init()
-        self.thread_init(network_pipe,player_pipe,ltc_pipe,mtc_pipe,main_pipe)
-        self.func_init()
-        self.visual_init()
-        self.show()
+        
+        try:
+            super(GUI,self).__init__()
+            uic.loadUi("gui.ui",self)
+            self.setWindowTitle("TEST")
+            self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+            self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)  
+            self.var_init()
+            self.thread_init(network_pipe,player_pipe,ltc_pipe,mtc_pipe,main_pipe)
+            self.func_init()
+            self.visual_init()
+            self.show()
+            
+        except Exception as e:
+            log(f"[ERROR GUI {inspect.currentframe().f_code.co_name}]: {e}")
 
     # ---------------- INIT CONFIG
 
@@ -95,19 +104,13 @@ class GUI(QMainWindow):
         
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_tc_labels)
-        self.timer.setInterval(100)
+        self.timer.setInterval(50)
         self.timer.start()
         
-        self.thread_pool = QThreadPool()
-        
-        self.recv_server_thread = GUI_send_recv(self.recv_server_data)
-        self.thread_pool.start(self.recv_server_thread)
-
-        self.recv_player_thread = GUI_send_recv(self.recv_player_data)
-        self.thread_pool.start(self.recv_player_thread)
-
-        self.send_thread = GUI_send_recv(self.send_data_to_process)
-        self.thread_pool.start(self.send_thread)
+        self.executor = ThreadPoolExecutor()
+        self.recv_server_thread = self.executor.submit(self.recv_server_data)
+        self.recv_player_thread = self.executor.submit(self.recv_player_data)
+        self.send_thread = self.executor.submit(self.send_data_to_process)
 
     def func_init(self): #TEST
         # WINDOW BUTTONS ASSING
@@ -162,7 +165,7 @@ class GUI(QMainWindow):
                 ip_components = ip.split(".")
                 ip1, ip2, ip3, ip4 = ip_components
             else:
-                print("La dirección IP no es válida")
+                log("La dirección IP no es válida",WARNING)
                 # Realiza alguna acción para manejar el caso de una dirección IP no válida
         else:
             ip_components = self.host.split(".")
@@ -214,7 +217,7 @@ class GUI(QMainWindow):
 
     # NETWORK AND MODE BUTTONS FUNCTIONS
 
-    def set_master_mode(self): #TEST
+    def set_master_mode(self): #TEST       
         self.master_button.setChecked(True)
         self.slave_button.setChecked(False)
             
@@ -232,7 +235,7 @@ class GUI(QMainWindow):
         self.audio_close_button.setEnabled(True)
         self.audio_slider.setEnabled(True)
         self.audio_output_combo_box.setEnabled(True)
-        self.audio_open_button.setText("Open An Audio File")
+        self.audio_open_button.setText("OPEN AN AUDIO FILE")
         
         if self.network_is_on:
             self.set_network()
@@ -241,15 +244,25 @@ class GUI(QMainWindow):
 
         self.ltc_pipe.send({"is_playing":False})
         self.mtc_pipe.send({"is_playing":False})
+        self.timecode = 0
 
     def set_slave_mode(self): #TEST
+        
+        if self.is_playing:
+            if not self.confirm_stop_window():
+                self.master_button.setChecked(True)
+                self.slave_button.setChecked(False)
+                return
+            self.stop()
+            
+        self.player_pipe.send({"file_path":None})
+        
         self.master_button.setChecked(False)
         self.slave_button.setChecked(True)
         
         if self.mode == "slave":
             return
         self.mode = "slave"
-        self.stop()
 
         self.play_button.setEnabled(False)
         self.stop_button.setEnabled(False)
@@ -260,7 +273,7 @@ class GUI(QMainWindow):
         self.audio_close_button.setEnabled(False)
         self.audio_slider.setEnabled(False)
         self.audio_output_combo_box.setEnabled(False)
-        self.audio_open_button.setText("Audio Player Is Disable In Slave Mode")
+        self.audio_open_button.setText("AUDIO PLAYER IS DISABLE IN SLAVE MODE")
         self.users_icon.setVisible(False)
         self.users_label.setVisible(False)
         
@@ -271,7 +284,8 @@ class GUI(QMainWindow):
         
         self.ltc_pipe.send({"is_playing":True})
         self.mtc_pipe.send({"is_playing":True})
-
+        self.timecode = 0
+        
     def set_network(self): #TEST
         self.set_ip()
         self.network_is_on = not self.network_is_on
@@ -306,6 +320,9 @@ class GUI(QMainWindow):
                 self.port_input.setEnabled(False)
                 self.error_label.setVisible(False)
                 self.error_label.setText(self.server_error) 
+        
+        if self.mode == "slave":
+            self.timecode = 0
 
     def set_ip(self):
         ip1 = self.ip_1.text()
@@ -396,8 +413,11 @@ class GUI(QMainWindow):
 
     def open_audio_file(self): #TEST
         try:
-            file_path, _ = QFileDialog.getOpenFileName(None, 'Abrir archivo de audio', '', 'Archivos de audio (*.wav)')
+            file_path, _ = QFileDialog.getOpenFileName(None, 'Abrir archivo de audio', '', 'Archivos de audio (*.wav *.mp3)')
             
+            if not file_path:
+                return
+        
             if self.is_playing:
                 if not self.confirm_stop_window():
                     return
@@ -408,7 +428,7 @@ class GUI(QMainWindow):
             self.audio_open_button.setText(file_name.upper())
             
         except Exception as e:
-            log('[OPEN AUDIO ERROR]:', str(e),RED)
+            log('[OPEN AUDIO ERROR]:', str(e))
             self.close_audio_file()
 
     def close_audio_file(self): #TEST
@@ -597,7 +617,7 @@ class GUI(QMainWindow):
         message_box = QMessageBox(self)
         message_box.setWindowTitle("Warning")
         message_box.setText("Timecode is playing!")
-        message_box.setInformativeText("Do you want to close the audio file?")
+        message_box.setInformativeText("Do you want to stop it?")
         message_box.setIcon(QMessageBox.Question)
         message_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         wrapper = partial(self.center_widget, message_box)
@@ -618,7 +638,7 @@ class GUI(QMainWindow):
             self.ltc_pipe.send(data_to_send)
             self.mtc_pipe.send(data_to_send)
         except Exception as e:
-            print(f"[ERROR GUI]: {e}")
+            log(f"[ERROR GUI {inspect.currentframe().f_code.co_name}]: {e}")
 
     def send_data_to_process(self): #THREAD
         try:
@@ -735,7 +755,7 @@ class GUI(QMainWindow):
                 time.sleep(0.01)
                 
         except Exception as e:
-            print(f"[ERROR GUI]: {e}")
+            log(f"[ERROR GUI {inspect.currentframe().f_code.co_name}]: {e}")
 
     def recv_server_data(self): #THREAD
         try:
@@ -752,40 +772,46 @@ class GUI(QMainWindow):
                     
                 if 'clients' in network_recv_data:
                     self.clients = network_recv_data["clients"]
-                    self.users_label.setText(str(len(self.clients)))
                     
                 if 'timecode_recv' in network_recv_data and self.mode == "slave":
                     self.timecode = network_recv_data["timecode_recv"]
                     
-                if self.online and self.network_is_on:
-                    if self.mode=="master":
-                        self.connect_button.setText("SENDING")
-                        self.users_icon.setVisible(True)
-                        self.users_label.setVisible(True)
-                    elif self.mode=="slave":
-                        self.connect_button.setText("LISTENING")
+                    
+                if 'online' in network_recv_data or 'error' in network_recv_data:
+                    if self.online and self.network_is_on:
+                        
+                        if self.mode=="master":
+                            self.connect_button.setText("SENDING")
+                            self.users_icon.setVisible(True)
+                            self.users_label.setVisible(True)
+                            
+                        elif self.mode=="slave":
+                            self.connect_button.setText("LISTENING")
+                            self.users_icon.setVisible(False)
+                            self.users_label.setVisible(False)
+                        self.connect_button.setStyleSheet(online_button_style)
+                        self.error_label.setVisible(False)
+                        self.error_label.setText(self.server_error)
+                        
+                    elif not self.online and self.network_is_on and self.server_error is not None:
+                        
+                        if self.server_error == "SERVER NOT FOUND":
+                            self.connect_button.setText("TRYING")
+                            self.connect_button.setStyleSheet(connecting_button_style)
+                            
+                        else:
+                            self.connect_button.setText("ERROR")
+                            self.connect_button.setStyleSheet(offline_button_style)
+                            
                         self.users_icon.setVisible(False)
                         self.users_label.setVisible(False)
-                    self.connect_button.setStyleSheet(online_button_style)
-                    self.error_label.setVisible(False)
-                    self.error_label.setText(self.server_error)
-                    
-                elif not self.online and self.network_is_on and self.server_error is not None:
-                    
-                    if self.server_error == "SERVER NOT FOUND":
-                        self.connect_button.setText("TRYING")
-                        self.connect_button.setStyleSheet(connecting_button_style)
+                        self.error_label.setVisible(True)
+                        self.error_label.setText(self.server_error)
                         
-                    else:
-                        self.connect_button.setText("ERROR")
-                        self.connect_button.setStyleSheet(offline_button_style)
-                    self.users_icon.setVisible(False)
-                    self.users_label.setVisible(False)
-                    self.error_label.setVisible(True)
-                    self.error_label.setText(self.server_error)
+                self.users_label.setText(str(len(self.clients)))
                 
         except Exception as e:
-            print(f"[ERROR GUI]: {e}")
+            log(f"[ERROR GUI {inspect.currentframe().f_code.co_name}]: {e}")
 
     def recv_player_data(self): #THREAD
         try:
@@ -809,7 +835,7 @@ class GUI(QMainWindow):
                         self.remaning_tc.setText(str(secs_to_tc(86400 - self.timecode))) 
                 
         except Exception as e:
-            print(f"[ERROR GUI]: {e}")
+            log(f"[ERROR GUI {inspect.currentframe().f_code.co_name}]: {e}")
 
     def recv_ltc_data(self): #THREAD
         try:
@@ -821,7 +847,7 @@ class GUI(QMainWindow):
                     self.ltc_output_combo_box.clear()
                     self.ltc_output_combo_box.addItems(list(self.ltc_outputs.values()))
         except Exception as e:
-            print(f"[ERROR GUI]: {e}")
+            log(f"[ERROR GUI {inspect.currentframe().f_code.co_name}]: {e}")
 
     def recv_mtc_data(self): #THREAD
         try:
@@ -833,7 +859,7 @@ class GUI(QMainWindow):
                     self.mtc_output_combo_box.clear()
                     self.mtc_output_combo_box.addItems(list(self.mtc_outputs.values()))
         except Exception as e:
-            print(f"[ERROR GUI]: {e}")
+            log(f"[ERROR GUI {inspect.currentframe().f_code.co_name}]: {e}")
 
     # ---------------- UPDATES FUNCTIONS
             
@@ -870,7 +896,7 @@ class GUI_send_recv(QRunnable):
         try:
             self.Func()
         except Exception as e:
-            print(f"[ERROR GUI]: {e}")
+            log(f"[ERROR GUI {inspect.currentframe().f_code.co_name}]: {e}")
 
 ##############################################
 ##---------------- STYLES ------------------##
@@ -1016,4 +1042,4 @@ def UI(server_pipe, player_pipe,ltc_pipe,mtc_pipe,main_pipe):
         mainApp.exec_()
    
     except Exception as e:
-        print(f"[ERROR GUI]: {e}")
+        log(f"[ERROR GUI {inspect.currentframe().f_code.co_name}]: {e}")

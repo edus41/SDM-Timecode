@@ -16,6 +16,7 @@ def close(proceso):
 ##############################################
 
 if __name__ == "__main__":
+    
     try:
         multiprocessing.freeze_support()
             
@@ -49,5 +50,5 @@ if __name__ == "__main__":
             time.sleep(1)
             
     except Exception as e:
-        print(f"[MAIN ERROR]: {e}")
+        log(f"[MAIN ERROR]: {str(e)}")
         

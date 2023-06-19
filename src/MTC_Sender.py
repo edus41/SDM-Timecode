@@ -4,6 +4,8 @@ import pygame.midi
 from tools import *
 import time
 from threading import Thread
+import inspect
+
 ##############################################
 ##--------------- MTC SENDER ---------------##
 ##############################################
@@ -11,19 +13,22 @@ from threading import Thread
 class MTC_Sender(Process):
     
     def __init__(self,mtc_pipe):
-        Process.__init__(self)
-        self.is_running = True
-        self.pipe = mtc_pipe
-        self.midi_out = None
-        
-        # RECV
-        self.is_playing = False
-        self.mtc_is_on = False
-        self.mtc_output_device = 0
-        self.mtc_fps = 25
-        self.mtc_offset = 0
-        self.timecode = 0
-        self.mtc_timecode = 0
+        try:
+            Process.__init__(self)
+            self.is_running = True
+            self.pipe = mtc_pipe
+            self.midi_out = None
+            
+            # RECV
+            self.is_playing = False
+            self.mtc_is_on = False
+            self.mtc_output_device = 0
+            self.mtc_fps = 25
+            self.mtc_offset = 0
+            self.timecode = 0
+            self.mtc_timecode = 0
+        except Exception as e:
+            log(f"[ERROR MTC {inspect.currentframe().f_code.co_name}]: {e}")
         
     def run (self):
         try:
@@ -48,8 +53,9 @@ class MTC_Sender(Process):
                     last_frames_totales = frames_totales
                     time.sleep(0.01)
                 time.sleep(0.1)
+                
         except Exception as e:
-            print(f"[ERROR MTC]: {e}")
+            log(f"[ERROR MTC {inspect.currentframe().f_code.co_name}]: {e}")
         
     def get_all_output_devices(self):
         try:
@@ -61,7 +67,7 @@ class MTC_Sender(Process):
                     
             return devices
         except Exception as e:
-            print(f"[ERROR MTC]: {e}")
+            log(f"[ERROR MTC {inspect.currentframe().f_code.co_name}]: {e}")
     
     def set_output_device(self,device_index):
         try:
@@ -71,10 +77,10 @@ class MTC_Sender(Process):
             pygame.midi.init()
             self.midi_out = pygame.midi.Output(device_index)
             self.current_output_device_index = device_index
-            print(f"Dispositivo de salida configurado: {pygame.midi.get_device_info(device_index)[1].decode()}")
+            log(f"Dispositivo de salida configurado: {pygame.midi.get_device_info(device_index)[1].decode()}",INFO)
             
         except Exception as e:
-            print(f"[ERROR MTC]: {e}")
+            log(f"[ERROR MTC {inspect.currentframe().f_code.co_name}]: {e}")
             
     def sendMTC(self,timecode):
         try:
@@ -101,15 +107,16 @@ class MTC_Sender(Process):
             self.midi_out.write_short(0xF1, digit6)
             self.midi_out.write_short(0xF1, digit7)
             self.midi_out.write_short(0xF1, digit8)
+            
         except Exception as e:
-            print(f"[ERROR MTC]: {e}")
+            log(f"[ERROR MTC {inspect.currentframe().f_code.co_name}]: {e}")
     
     def close(self):
         try:
             pygame.midi.quit()
             self.midi_out = None
         except Exception as e:
-            print(f"[ERROR MTC]: {e}")
+            log(f"[ERROR MTC {inspect.currentframe().f_code.co_name}]: {e}")
 
     # COMINICATION
     def recive_data(self):
@@ -139,7 +146,7 @@ class MTC_Sender(Process):
                 if 'is_running' in recive_data:
                     self.close()  
         except Exception as e:
-            print(f"[ERROR MTC]: {e}")
+            log(f"[ERROR MTC {inspect.currentframe().f_code.co_name}]: {e}")
     # END
     def close(self):
         try:
@@ -153,4 +160,4 @@ class MTC_Sender(Process):
             proceso_actual = multiprocessing.current_process()
             proceso_actual.terminate() 
         except Exception as e:
-            print(f"[ERROR MTC]: {e}")
+            log(f"[ERROR MTC {inspect.currentframe().f_code.co_name}]: {e}")

@@ -1,5 +1,7 @@
+import logging
+
 ##############################################
-##------------------ COLORS -----------------##
+##------------------ COLORS ----------------##
 ##############################################
 
 GRIS_1_COLOR="#202020"
@@ -14,6 +16,15 @@ YELLOW_COLOR="#BCB851"
 ##------------------ LOG -------------------##
 ##############################################
 
+# Configurar el registro de errores
+logging.basicConfig(filename='logs.txt', level=logging.ERROR, encoding='utf-8', format='%(asctime)s - %(levelname)s - %(message)s')
+
+ERROR = "ERROR"
+INFO = "INFO"
+WARNING = "WARNING"
+CRITICAL = "CRITICAL"
+DEBUG = "DEBUG"
+
 BLACK = "\033[30m"
 RED = "\033[31m"
 GREEN = "\033[32m"
@@ -24,11 +35,33 @@ CYAN = "\033[36m"
 WHITE = "\033[37m"
 RESET = "\033[0m"
 
-def log(*messages, color=WHITE):
-    if messages and messages[-1] in (BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE):
-        color = messages[-1]
+def log(*messages, type="ERROR"):
+    
+    if messages and messages[-1] in (ERROR, INFO, WARNING, CRITICAL, DEBUG):
+        type = messages[-1]
         messages = messages[:-1]
-    print(color + " ".join(str(message) for message in messages) + RESET)
+            
+    message = " ".join(str(message) for message in messages)
+    
+    if type=="ERROR":
+        print(RED + message + RESET)
+        logging.error(message)
+        
+    elif type=="INFO":
+        print(GREEN + message + RESET)
+        logging.info(message)
+
+    elif type=="WARNING":
+        print(YELLOW + message + RESET)
+        logging.warning(message)
+        
+    elif type=="CRITICAL":
+        print(RED + message + RESET)
+        logging.critical(message)
+        
+    elif type=="DEBUG":
+        print(MAGENTA + message + RESET)
+        logging.debug(message)
 
 ##############################################
 ##---------------- TIMECODE ----------------##

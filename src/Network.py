@@ -4,12 +4,15 @@ from threading import Thread
 import time
 from socket import *
 from tools import *
+import ping3
+import inspect
 
 ##############################################
 ##---------------- THREADS -----------------##
 ##############################################
 
 class ClienteHilo(Thread):
+    
     def __init__(self, cliente):
         Thread.__init__(self)
         self.cliente = cliente
@@ -17,17 +20,18 @@ class ClienteHilo(Thread):
     def run(self):
         try:
             while True:
+
                 mensaje_recibido = self.cliente.recv(1024).decode("utf-8")
                 
                 if mensaje_recibido:
-                    log(f"[ClienteHilo {self.cliente}]: {mensaje_recibido}",GREEN)
+                    log(f"[ClienteHilo {self.cliente}]: {mensaje_recibido}",INFO)
 
         except ConnectionResetError:
-            log(F"[ERROR ClienteHilo]: Cliente {self.cliente} desconectado abruptamente.",RED)
+            log(F"[ERROR ClienteHilo]: Cliente {self.cliente} desconectado abruptamente.")
         
         except Exception as e:
             log(f"[ERROR ClienteHilo]: {e}", RED)
-
+            
 ##############################################
 ##---------------- NETWORK -----------------##
 ##############################################
@@ -35,32 +39,36 @@ class ClienteHilo(Thread):
 class Network(Process):
 
     def __init__(self, network_pipe):
-        Process.__init__(self)
-        
-        # privates
-        self.is_running = True
-        self.pipe = network_pipe
-        self.last_timecode = 0
-        self.server = None
-        self.client = None
-        
-        # to recive
-        self.host = "Networks not found"
-        self.port = 44444
-        self.network_is_on = False
-        self.timecode = 0
-        self.direccion = f"{self.host}:{self.port}"
-        self.server_address = (self.host, self.port)
-        self.mode = "master"
-        
-        # to send
-        self.online = False
-        self.error = None
-        self.clients = []
-        
-        #client mode
-        self.timecode_recv = 0
-
+        try:
+            Process.__init__(self)
+            
+            # privates
+            self.is_running = True
+            self.pipe = network_pipe
+            self.last_timecode = 0
+            self.server = None
+            self.client = None
+            
+            # to recive
+            self.host = "Networks not found"
+            self.port = 44444
+            self.network_is_on = False
+            self.timecode = 0
+            self.direccion = f"{self.host}:{self.port}"
+            self.server_address = (self.host, self.port)
+            self.mode = "master"
+            
+            # to send
+            self.online = False
+            self.error = None
+            self.clients = []
+            
+            #client mode
+            self.timecode_recv = 0
+            
+        except Exception as e:
+            log(f"[ERROR NETWORK {inspect.currentframe().f_code.co_name}]: {e}")
+            
     def run(self):
         try:
             self.recive_thread = Thread(target = self.recive_data)
@@ -92,7 +100,7 @@ class Network(Process):
                 time.sleep(0.1)
                 
         except Exception as e:
-            print(f"[ERROR NET]: {e}")
+            log(f"[ERROR NET {inspect.currentframe().f_code.co_name}]: {e}")
 
     def run_server(self):
         while not self.online and self.network_is_on and self.mode == "master":
@@ -104,17 +112,17 @@ class Network(Process):
                 self.online = True
                 self.error = None
                 
-                log(f"[SERVER INIT] Esperando conexiones en {self.host}:{self.port}", GREEN)
+                log(f"[SERVER INIT] Esperando conexiones en {self.host}:{self.port}",INFO)
 
                 while self.online and self.network_is_on and self.mode == "master":
                     try:
                         cliente, direccion = self.server.accept()
                     except:
                         if "10038" in str(e):
-                            log(f"[SERVER DISCONECTED]: Stop Event, {e}", RED)
+                            log(f"[SERVER DISCONECTED]: Stop Event {e}")
                             self.error = None
                         continue
-                    log(f"[CLIENT CONECT] {direccion[0]}:{direccion[1]} conectado.", GREEN)
+                    log(f"[CLIENT CONECT] {direccion[0]}:{direccion[1]} conectado.",INFO)
 
                     cliente_hilo = ClienteHilo(cliente)
                     cliente_hilo.start()
@@ -125,66 +133,80 @@ class Network(Process):
 
             except Exception as e:
                 if "10048" in str(e):
-                    log(f"[SERVER ERROR]: Ya Existe Un Servidor Iniciado en: {self.direccion}, Reintentando...", RED)
+                    log(f"[SERVER ERROR]: Ya Existe Un Servidor Iniciado en: {self.direccion}, Reintentando...")
                     self.error = "NETWORK NOT AVIABLE"
                 elif "11001" in str(e):
-                    log(f"[SERVER ERROR]: IP FORMAT INVALID {e}", RED)
+                    log(f"[SERVER ERROR]: IP FORMAT INVALID {e}")
                     self.error = "IP FORMAT INVALID"
                 elif "10049" in str(e):
-                    log(f"[SERVER ERROR]: INVALID IP {e}", RED)
+                    log(f"[SERVER ERROR]: INVALID IP {e}")
                     self.error = "INVALID IP"
                 elif "10038" in str(e):
-                    log(f"[SERVER DISCONECTED]: Stop Event, {e}", RED)
+                    log(f"[SERVER DISCONECTED]: Stop Event {e}")
                     self.error = None
                 elif "0-65535" in str(e):
-                    log(f"[SERVER ERROR]: PORT MUST BE 0-65535, {e}", RED)
+                    log(f"[SERVER ERROR]: PORT MUST BE 0-65535 {e}")
                     self.error = "PORT MUST BE 0-65535"
                 else:
-                    log(f"[SERVER ERROR]: {e}", RED)
+                    log(f"[SERVER ERROR]: {str(e)}")
                     self.error = "SERVER ERROR"
                 self.online = False
                 self.server = None
+                time.sleep(1)
 
     def run_client(self):
         while not self.online and self.network_is_on and self.mode == "slave":
+            
             try:
+                
                 self.client = socket(AF_INET, SOCK_STREAM)
                 self.client.connect((self.host, self.port))
-                log("[CLIENT CONECTED] {}:{}".format(self.host, self.port),GREEN)
+                log("[CLIENT CONECTED] {}:{}".format(self.host, self.port),INFO)
                 time.sleep(1)
                 self.online = True
                 self.error = None
                 
                 while self.online and self.network_is_on and self.mode == "slave":
-                    data = self.client.recv(1024).decode("utf-8")
-                    if data != " ":
-                        try:
-                            self.timecode_recv = float(data)
-                        except ValueError:
-                            log(f"[CLIENT ERROR] La cadena no se puede convertir a float",RED)
                     
+                    ping_time = ping3.ping(self.host, timeout = 1)
+
+                    if ping_time is not None:
+                        data = self.client.recv(1024).decode("utf-8")
+                        
+                        if data != " ":
+                            last_dash_index = data.rindex("-")
+                            numbers_after_dash = float(data[last_dash_index + 1:])
+                            
+                            if numbers_after_dash > 0:
+                                self.timecode_recv = round(numbers_after_dash - ping_time,2)
+                            else:
+                                self.timecode_recv = 0
+                            
+            except ValueError:
+                log(f"[CLIENT ERROR] La cadena no se puede convertir a float {numbers_after_dash}")
+
             except Exception as e:
                 if "10048" in str(e):
-                    log(f"[CLIENT ERROR]: Failed to open connection on {self.host}:{self.port} {e}", MAGENTA)
+                    log(f"[CLIENT ERROR]: Failed to open connection on {self.host}:{self.port} {e}")
                     self.error = None
-                elif "10054" or "10061" in str(e):
-                    log(f"[CLIENT ERROR]: not server found {e}", MAGENTA)
+                elif "10054" in str(e) or "10061" in str(e):
+                    log(f"[CLIENT ERROR]: SERVER NOT FOUND {e}")
                     self.error = "SERVER NOT FOUND"
                 elif "11001" in str(e):
-                    log(f"[CLIENT ERROR]: INVALID IP FORMAT {e}", MAGENTA)
+                    log(f"[CLIENT ERROR]: INVALID IP FORMAT {e}")
                     self.error = "INVALID IP FORMAT"
                 elif "10049" in str(e):
-                    log(f"[CLIENT ERROR]: INVALID IP {e}", MAGENTA)
+                    log(f"[CLIENT ERROR]: INVALID IP {e}")
                     self.error = "INVALID IP"
                 else:
-                    log(f"[CLIENT ERROR]: OTHER", MAGENTA)
+                    log(f"[CLIENT ERROR]: OTHER {e}")
                     self.error = "NETWORK NOT AVIABLE"
                 self.online = False
                 self.client = None
 
     def send_to_all(self, data):
         try:
-            data_str = str(data)
+            data_str = f"-{str(data)}"
             for client in self.clients:
                     client.send(data_str.encode("utf-8"))
         
@@ -212,7 +234,7 @@ class Network(Process):
             client.send(" ".encode("utf-8"))
             time.sleep(1)
         except Exception as e:
-            log(f"[ERROR client_conected] {e}",RED)
+            log(f"[ERROR client_conected] {e}")
             return False
         return True
 
@@ -225,7 +247,7 @@ class Network(Process):
                 self.server = None
                 
         except Exception as e:
-            print(f"[ERROR NET]: {e}")
+            log(f"[ERROR NET {inspect.currentframe().f_code.co_name}]: {e}")
 
     def stop_client(self):
         try:
@@ -233,7 +255,7 @@ class Network(Process):
                 self.client.close()
                 self.client = None
         except Exception as e:
-            print(f"[ERROR NET]: {e}")
+            log(f"[ERROR NET {inspect.currentframe().f_code.co_name}]: {e}")
         
     # COMINICATION
     def recive_data(self):
@@ -270,7 +292,7 @@ class Network(Process):
                 self.direccion = f"{self.host}:{self.port}"
                 self.server_address = (self.host, self.port)
         except Exception as e:
-            print(f"[ERROR NET]: {e}")
+            log(f"[ERROR NET {inspect.currentframe().f_code.co_name}]: {e}")
 
     def send_data(self):
         try:
@@ -301,7 +323,7 @@ class Network(Process):
                     self.pipe.send(data_to_send)
                 time.sleep(0.01)
         except Exception as e:
-            print(f"[ERROR NET]: {e}")
+            log(f"[ERROR NET {inspect.currentframe().f_code.co_name}]: {e}")
 
    # END
     def close(self):
@@ -319,4 +341,4 @@ class Network(Process):
             proceso_actual = multiprocessing.current_process()
             proceso_actual.terminate()  
         except Exception as e:
-            print(f"[ERROR NET]: {e}")
+            log(f"[ERROR NET {inspect.currentframe().f_code.co_name}]: {e}")
