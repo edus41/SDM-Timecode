@@ -6,6 +6,7 @@ from socket import *
 from tools import *
 import ping3
 import inspect
+import ipaddress
 
 ##############################################
 ##---------------- THREADS -----------------##
@@ -115,13 +116,15 @@ class Network(Process):
                 log(f"[SERVER INIT] Esperando conexiones en {self.host}:{self.port}",INFO)
 
                 while self.online and self.network_is_on and self.mode == "master":
+                    
                     try:
                         cliente, direccion = self.server.accept()
-                    except:
+                    except Exception as e:
                         if "10038" in str(e):
                             log(f"[SERVER DISCONECTED]: Stop Event {e}")
                             self.error = None
                         continue
+                    
                     log(f"[CLIENT CONECT] {direccion[0]}:{direccion[1]} conectado.",INFO)
 
                     cliente_hilo = ClienteHilo(cliente)
@@ -132,23 +135,27 @@ class Network(Process):
                         break    
 
             except Exception as e:
-                if "10048" in str(e):
-                    log(f"[SERVER ERROR]: Ya Existe Un Servidor Iniciado en: {self.direccion}, Reintentando...")
-                    self.error = "NETWORK NOT AVIABLE"
-                elif "11001" in str(e):
-                    log(f"[SERVER ERROR]: IP FORMAT INVALID {e}")
-                    self.error = "IP FORMAT INVALID"
-                elif "10049" in str(e):
-                    log(f"[SERVER ERROR]: INVALID IP {e}")
+                error_message = str(e)
+                if "10048" in error_message:
+                    log(f"[SERVER ERROR]: Ya Existe Un Servidor Iniciado en: {self.direccion}, Reintentando...",WARNING)
+                    self.error = "NETWORK NOT AVAILABLE"
+                elif "11001" in error_message:
+                    log(f"[SERVER ERROR]: INVALID IP / PORT VALUE {error_message}",WARNING)
+                    self.error = "INVALID IP / PORT VALUE"
+                elif "10049" in error_message:
+                    log(f"[SERVER ERROR]: INVALID IP {error_message}",WARNING)
                     self.error = "INVALID IP"
-                elif "10038" in str(e):
-                    log(f"[SERVER DISCONECTED]: Stop Event {e}")
+                elif "10038" in error_message:
+                    log(f"[SERVER DISCONNECTED]: Stop Event {error_message}")
                     self.error = None
-                elif "0-65535" in str(e):
-                    log(f"[SERVER ERROR]: PORT MUST BE 0-65535 {e}")
+                elif "0-65535" in error_message:
+                    log(f"[SERVER ERROR]: PORT MUST BE 0-65535 {error_message}",WARNING)
                     self.error = "PORT MUST BE 0-65535"
+                elif "interpreted" in error_message:
+                    log(f"[SERVER ERROR]: INVALID IP / PORT VALUE {e}")
+                    self.error = "INVALID IP / PORT VALUE"
                 else:
-                    log(f"[SERVER ERROR]: {str(e)}")
+                    log(f"[SERVER ERROR OTHER]: {error_message}")
                     self.error = "SERVER ERROR"
                 self.online = False
                 self.server = None
@@ -193,11 +200,14 @@ class Network(Process):
                     log(f"[CLIENT ERROR]: SERVER NOT FOUND {e}")
                     self.error = "SERVER NOT FOUND"
                 elif "11001" in str(e):
-                    log(f"[CLIENT ERROR]: INVALID IP FORMAT {e}")
-                    self.error = "INVALID IP FORMAT"
+                    log(f"[CLIENT ERROR]: INVALID IP OR PORT VALUE {e}")
+                    self.error = "INVALID IP / PORT VALUE"
                 elif "10049" in str(e):
                     log(f"[CLIENT ERROR]: INVALID IP {e}")
                     self.error = "INVALID IP"
+                elif "interpreted" in str(e):
+                    log(f"[CLIENT ERROR]: INVALID IP OR PORT VALUE {e}")
+                    self.error = "INVALID IP / PORT VALUE"
                 else:
                     log(f"[CLIENT ERROR]: OTHER {e}")
                     self.error = "NETWORK NOT AVIABLE"
@@ -269,8 +279,9 @@ class Network(Process):
                         self.send_to_all(self.timecode)
                     
                 if 'host' in data_to_recv:
-                    self.host = data_to_recv["host"]   
-
+                    self.host = data_to_recv["host"] 
+                    print("self.host", self.host)
+                    
                 if 'port' in data_to_recv:
                     self.port = data_to_recv["port"]               
 
@@ -291,6 +302,7 @@ class Network(Process):
                 
                 self.direccion = f"{self.host}:{self.port}"
                 self.server_address = (self.host, self.port)
+                
         except Exception as e:
             log(f"[ERROR NET {inspect.currentframe().f_code.co_name}]: {e}")
 

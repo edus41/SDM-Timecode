@@ -17,7 +17,7 @@ YELLOW_COLOR="#BCB851"
 ##############################################
 
 # Configurar el registro de errores
-logging.basicConfig(filename='logs.txt', level=logging.ERROR, encoding='utf-8', format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='logs.txt', level = logging.INFO, encoding='utf-8', format='%(asctime)s - %(levelname)s - %(message)s')
 
 ERROR = "ERROR"
 INFO = "INFO"

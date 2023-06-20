@@ -749,10 +749,10 @@ QComboBox::down-arrow::disabled {
       </property>
       <property name="geometry">
        <rect>
-        <x>350</x>
-        <y>10</y>
-        <width>90</width>
-        <height>20</height>
+        <x>353</x>
+        <y>11</y>
+        <width>84</width>
+        <height>18</height>
        </rect>
       </property>
       <property name="font">
@@ -769,7 +769,7 @@ QComboBox::down-arrow::disabled {
         background-color: #36BD74;
         color: #202020;
         border: none;
-        border-radius: 6px;
+        border-radius: 4px;
     }
     QPushButton:hover {
         background-color: #225e3f;
@@ -818,9 +818,9 @@ QPushButton:disabled {
      <widget class="QLabel" name="ltc_offset_label">
       <property name="geometry">
        <rect>
-        <x>350</x>
+        <x>351</x>
         <y>30</y>
-        <width>90</width>
+        <width>89</width>
         <height>20</height>
        </rect>
       </property>
@@ -1352,10 +1352,10 @@ QComboBox::down-arrow::disabled {
      <widget class="QPushButton" name="mtc_offset_button">
       <property name="geometry">
        <rect>
-        <x>350</x>
-        <y>10</y>
-        <width>90</width>
-        <height>20</height>
+        <x>353</x>
+        <y>11</y>
+        <width>84</width>
+        <height>18</height>
        </rect>
       </property>
       <property name="font">
@@ -1372,7 +1372,7 @@ QComboBox::down-arrow::disabled {
         background-color: #36BD74;
         color: #202020;
         border: none;
-        border-radius: 6px;
+        border-radius: 4px;
     }
     QPushButton:hover {
         background-color: #225e3f;
@@ -1421,9 +1421,9 @@ QPushButton:disabled {
      <widget class="QLabel" name="mtc_offset_label">
       <property name="geometry">
        <rect>
-        <x>350</x>
+        <x>351</x>
         <y>30</y>
-        <width>90</width>
+        <width>89</width>
         <height>20</height>
        </rect>
       </property>

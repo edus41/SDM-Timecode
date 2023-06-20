@@ -7,9 +7,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 from PyQt5 import uic, QtCore,QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog,QMessageBox
-from PyQt5.QtCore import QRunnable, pyqtSlot
+from PyQt5.QtCore import Qt, QObject, pyqtSignal, QTimer
 from PyQt5.QtGui import QPixmap, QPainter, QColor
-from PyQt5.QtCore import Qt, QTimer
 
 from socket import *
 import sounddevice as sd
@@ -18,6 +17,9 @@ from functools import partial
 from tools import *
 from get_nets import get_nets,is_ip_address
 
+class SignalObject(QObject):
+    valueChanged = pyqtSignal()
+    
 ##############################################
 ##------------------- GUI ------------------##
 ##############################################
@@ -106,6 +108,9 @@ class GUI(QMainWindow):
         self.timer.timeout.connect(self.update_tc_labels)
         self.timer.setInterval(50)
         self.timer.start()
+        
+        self.signal_object = SignalObject()
+        self.signal_object.valueChanged.connect(self.update_network_label)
         
         self.executor = ThreadPoolExecutor()
         self.recv_server_thread = self.executor.submit(self.recv_server_data)
@@ -325,13 +330,32 @@ class GUI(QMainWindow):
             self.timecode = 0
 
     def set_ip(self):
-        ip1 = self.ip_1.text()
-        ip2 = self.ip_2.text()
-        ip3 = self.ip_3.text()
-        ip4 = self.ip_4.text()
-        self.host = f"{ip1}.{ip2}.{ip3}.{ip4}"
-        self.port = int(self.port_input.text())
+        try:
+            
+            ip1 = int(self.ip_1.text())
+            self.ip_1.setText(str(ip1))
+            
+            ip2 = int(self.ip_2.text())
+            self.ip_2.setText(str(ip2))
+            
+            ip3 = int(self.ip_3.text())
+            self.ip_3.setText(str(ip3))
+            
+            ip4 = int(self.ip_4.text())
+            self.ip_4.setText(str(ip4))
+            
+            self.port = int(self.port_input.text())
+            self.port_input.setText(str(self.port))
+            
+        except ValueError:
+            ip1 = self.ip_1.text()
+            ip2 = self.ip_2.text()
+            ip3 = self.ip_3.text()
+            ip4 = self.ip_4.text()
+            self.port = self.port_input.text()
 
+        self.host = f"{ip1}.{ip2}.{ip3}.{ip4}"
+        
     # CONTROLS BUTTONS FUNCTIONS
 
     def play_pause(self): #TEST
@@ -776,38 +800,9 @@ class GUI(QMainWindow):
                 if 'timecode_recv' in network_recv_data and self.mode == "slave":
                     self.timecode = network_recv_data["timecode_recv"]
                     
-                    
+                #UPDATE VALUES
                 if 'online' in network_recv_data or 'error' in network_recv_data:
-                    if self.online and self.network_is_on:
-                        
-                        if self.mode=="master":
-                            self.connect_button.setText("SENDING")
-                            self.users_icon.setVisible(True)
-                            self.users_label.setVisible(True)
-                            
-                        elif self.mode=="slave":
-                            self.connect_button.setText("LISTENING")
-                            self.users_icon.setVisible(False)
-                            self.users_label.setVisible(False)
-                        self.connect_button.setStyleSheet(online_button_style)
-                        self.error_label.setVisible(False)
-                        self.error_label.setText(self.server_error)
-                        
-                    elif not self.online and self.network_is_on and self.server_error is not None:
-                        
-                        if self.server_error == "SERVER NOT FOUND":
-                            self.connect_button.setText("TRYING")
-                            self.connect_button.setStyleSheet(connecting_button_style)
-                            
-                        else:
-                            self.connect_button.setText("ERROR")
-                            self.connect_button.setStyleSheet(offline_button_style)
-                            
-                        self.users_icon.setVisible(False)
-                        self.users_label.setVisible(False)
-                        self.error_label.setVisible(True)
-                        self.error_label.setText(self.server_error)
-                        
+                    self.signal_object.valueChanged.emit()
                 self.users_label.setText(str(len(self.clients)))
                 
         except Exception as e:
@@ -881,23 +876,37 @@ class GUI(QMainWindow):
             mtc_tc = secs_to_tc(self.timecode + self.mtc_offset, self.mtc_fps)
             self.mtc_tc_label.setText(str(mtc_tc))
 
-##############################################
-##---------------- THREAD ------------------##
-##############################################
-
-class GUI_send_recv(QRunnable):
-    
-    def __init__(self, InFunc):
-        super(GUI_send_recv, self).__init__()
-        self.Func = InFunc
-
-    @pyqtSlot(name="1")
-    def run(self): #TEST
-        try:
-            self.Func()
-        except Exception as e:
-            log(f"[ERROR GUI {inspect.currentframe().f_code.co_name}]: {e}")
-
+    def update_network_label(self):
+        if self.online and self.network_is_on:
+            
+            if self.mode=="master":
+                self.connect_button.setText("SENDING")
+                self.users_icon.setVisible(True)
+                self.users_label.setVisible(True)
+                
+            elif self.mode=="slave":
+                self.connect_button.setText("LISTENING")
+                self.users_icon.setVisible(False)
+                self.users_label.setVisible(False)
+            self.connect_button.setStyleSheet(online_button_style)
+            self.error_label.setVisible(False)
+            self.error_label.setText(self.server_error)
+            
+        elif not self.online and self.network_is_on and self.server_error is not None:
+            
+            if self.server_error == "SERVER NOT FOUND":
+                self.connect_button.setText("TRYING")
+                self.connect_button.setStyleSheet(connecting_button_style)
+                
+            else:
+                self.connect_button.setText("ERROR")
+                self.connect_button.setStyleSheet(offline_button_style)
+                
+            self.users_icon.setVisible(False)
+            self.users_label.setVisible(False)
+            self.error_label.setVisible(True)
+            self.error_label.setText(self.server_error)
+            
 ##############################################
 ##---------------- STYLES ------------------##
 ##############################################
