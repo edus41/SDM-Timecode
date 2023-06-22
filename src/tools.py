@@ -1,5 +1,6 @@
 import logging
-
+import os
+import sys
 ##############################################
 ##------------------ COLORS ----------------##
 ##############################################
@@ -17,7 +18,11 @@ YELLOW_COLOR="#BCB851"
 ##############################################
 
 # Configurar el registro de errores
-logging.basicConfig(filename='logs.txt', level = logging.INFO, encoding='utf-8', format='%(asctime)s - %(levelname)s - %(message)s')
+username = os.getlogin()
+log_dir = f'C:/users/{username}/.sdmtimecode'
+os.makedirs(log_dir, exist_ok = True)
+log_path = os.path.join(log_dir, 'logs.txt')
+logging.basicConfig(filename=log_path, level=logging.INFO, encoding='utf-8', format='%(asctime)s - %(levelname)s - %(message)s')
 
 ERROR = "ERROR"
 INFO = "INFO"
@@ -72,9 +77,24 @@ def tc_to_secs(timecode, fps = 99):#OK
     total_seconds = (horas * 3600) + (minutos * 60) + segundos + (frames / fps)
     return total_seconds
 
-def secs_to_tc(seconds, fps = 99):#OK
+def secs_to_tc(seconds, fps = 99, type="str"):#OK
     hh = int(seconds / 3600)
     mm = int((seconds % 3600) / 60)
     ss = int(seconds % 60)
     ff = int((seconds * fps) % fps)
-    return f"{hh:02d}:{mm:02d}:{ss:02d}:{ff:02d}"
+    if type == "str":
+        return f"{hh:02d}:{mm:02d}:{ss:02d}:{ff:02d}"
+    else:
+        return [hh,mm,ss,ff]
+
+##############################################
+##------------------ PATHS -----------------##
+##############################################
+
+def resource_path(relative_path):
+    """Obtiene la ruta absoluta al recurso, compatible con PyInstaller."""
+    if hasattr(sys, '_MEIPASS'):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(os.path.dirname(__file__))
+    return os.path.join(base_path, relative_path)

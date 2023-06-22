@@ -2,13 +2,14 @@ import time
 import sys
 import os
 import inspect
+import copy
 
 from concurrent.futures import ThreadPoolExecutor
 
 from PyQt5 import uic, QtCore,QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog,QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QTimer
-from PyQt5.QtGui import QPixmap, QPainter, QColor
+from PyQt5.QtGui import QPixmap, QPainter, QColor, QIcon
 
 from socket import *
 import sounddevice as sd
@@ -16,10 +17,25 @@ from functools import partial
 
 from tools import *
 from get_nets import get_nets,is_ip_address
+from User_GUI import UsersWindow
 
-class SignalObject(QObject):
-    valueChanged = pyqtSignal()
-    
+##############################################
+##----------------- PATHS ------------------##
+##############################################
+
+actual_path = os.path.abspath(os.path.dirname(__file__))
+gui_ui_path = os.path.join(actual_path, "gui.ui")
+icon_url = os.path.join(actual_path, "img/AppIcon2.png").replace("\\", "/")
+close_img_url = os.path.join(actual_path, "img/close.png").replace("\\", "/")
+close_hover_img_url = os.path.join(actual_path, "img/close_on.png").replace("\\", "/")
+min_img_url = os.path.join(actual_path, "img/min.png").replace("\\", "/")
+min_hover_img_url = os.path.join(actual_path, "img/min_on.png").replace("\\", "/")
+arrow_img_url = os.path.join(actual_path, "img/arrow2.png").replace("\\", "/")
+arrow_disable_img_url = os.path.join(actual_path, "img/arrow_disable.png").replace("\\", "/")
+client_button_img_url = os.path.join(actual_path, "img/People.png").replace("\\", "/")
+client_button_disable_img_url = os.path.join(actual_path, "img/People_disable.png").replace("\\", "/")
+
+
 ##############################################
 ##------------------- GUI ------------------##
 ##############################################
@@ -30,21 +46,137 @@ class GUI(QMainWindow):
         
         try:
             super(GUI,self).__init__()
-            uic.loadUi("gui.ui",self)
-            self.setWindowTitle("TEST")
+            uic.loadUi(gui_ui_path,self)
+            self.setWindowTitle("SDM-Timecode")
             self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
-            self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)  
+            self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+            self.setWindowIcon(QIcon(icon_url))
+            self.set_styles()
             self.var_init()
             self.thread_init(network_pipe,player_pipe,ltc_pipe,mtc_pipe,main_pipe)
             self.func_init()
             self.visual_init()
             self.show()
+            self.main_pipe.send({"loading":False})
             
         except Exception as e:
             log(f"[ERROR GUI {inspect.currentframe().f_code.co_name}]: {e}")
 
     # ---------------- INIT CONFIG
 
+    def set_styles(self):
+
+        close_button_style = f"""QPushButton {{
+            image: url("{close_img_url}");
+                color: #454545;
+                border: none;
+                border-radius: 5px;
+            }}
+            QPushButton:hover {{
+            image: url("{close_hover_img_url}");
+            background-repeat: no-repeat;
+                background-color: #202020;
+                color: #202020;
+            }}
+            QPushButton:pressed {{
+                background-color: #FFFFFF;
+                border-style: inset;
+            }}"""
+
+        min_button_style = f"""QPushButton {{
+            image: url("{min_img_url}");
+                color: #454545;
+                border: none;
+                border-radius: 5px;
+            }}
+            QPushButton:hover {{
+            image: url("{min_hover_img_url}");
+            background-repeat: no-repeat;
+                background-color: #202020;
+                color: #202020;
+            }}
+            QPushButton:pressed {{
+                background-color: #FFFFFF;
+                border-style: inset;
+            }}"""
+
+        combo_box_style = f"""QComboBox {{
+            background-color: #202020;
+            color: grey;
+            border: 1px solid #606060;
+            border-radius: 2px;
+            padding: 2px;
+            padding-left:5px;
+        }}
+
+        QComboBox::drop-down {{
+            subcontrol-origin: padding;
+            subcontrol-position: top right;
+            width: 20px;
+            border-left-width: 1px;
+            border-left-color: #606060;
+            border-left-style: solid;
+            background: #333333;
+        }}
+
+        QComboBox::drop-down::hover {{
+            background: #404040;
+        }}
+
+        QComboBox::drop-down::pressed {{
+            background: #505050;
+        }}
+
+
+        QComboBox::down-arrow {{
+            image: url("{arrow_img_url}");
+            width: 10px;
+        }}
+
+        QComboBox QAbstractItemView {{
+            border-radius:0;
+            border-bottom-right-radius: 2px;
+            border-bottom-left-radius: 2px;
+            background: #303030;
+            border: 1px solid #404040;
+            padding: 4px 4px 4px 4px;
+            color: grey;
+        }}
+
+        QComboBox:disabled  {{
+            background-color:  transparent;
+            color: #505050;
+            border: 1px solid #404040;
+            border-radius: 4px;
+            padding: 2px;
+            padding-left:5px;
+        }}
+
+        QComboBox::drop-down::disabled  {{
+            subcontrol-origin: padding;
+            subcontrol-position: top right;
+            width: 20px;
+            border-left-width: 1px;
+            border-left-color: #404040;
+            border-left-style: solid;
+            background: transparent;
+        }}
+
+        QComboBox::down-arrow::disabled {{
+            image: url("{arrow_disable_img_url}");
+            width: 10px;
+        }}
+        """
+
+        self.ltc_output_combo_box.setStyleSheet(combo_box_style)
+        self.ltc_fps_combo_box.setStyleSheet(combo_box_style)
+        self.mtc_output_combo_box.setStyleSheet(combo_box_style)
+        self.mtc_fps_combo_box.setStyleSheet(combo_box_style)
+        self.audio_output_combo_box.setStyleSheet(combo_box_style)
+        self.app_mini_button.setStyleSheet(min_button_style)
+        self.app_close_button.setStyleSheet(close_button_style)
+        self.audio_close_button.setStyleSheet(close_button_style)
+        
     def var_init(self): #TEST
         self.is_running = True
         
@@ -74,7 +206,6 @@ class GUI(QMainWindow):
         # SERVER SEND
         self.nets = get_nets()
         self.host = "192.168.0.1"
-        self.port = 44444
         self.network_is_on = False
         self.timecode = 0
         self.mode = "master"
@@ -82,6 +213,8 @@ class GUI(QMainWindow):
         self.online = False
         self.server_error = None
         self.clients = []
+        
+        self.users_window = None
         
         # -- LTC SENDER
         # LTC SEND
@@ -127,6 +260,8 @@ class GUI(QMainWindow):
         self.master_button.clicked.connect(self.set_master_mode)
         self.slave_button.clicked.connect(self.set_slave_mode)
         self.connect_button.clicked.connect(self.set_network)
+        self.client_button.clicked.connect(self.set_users_window)
+        self.client_add_button.clicked.connect(self.add_client)
 
         # CONTROL BUTTONS ASSING
         self.play_button.clicked.connect(self.play_pause)
@@ -180,15 +315,10 @@ class GUI(QMainWindow):
         self.ip_2.setText(ip2)
         self.ip_3.setText(ip3)
         self.ip_4.setText(ip4)
-        self.port_input.setText(str(self.port))
         
         self.audio_slider.setValue(int(self.gain*100))
         self.error_label.setVisible(False)
-        self.users_icon.setVisible(False)
-        self.users_label.setVisible(False)
-        self.recv_mtc_data()
-        
-        self.connect_button.setStyleSheet(start_button_style)            
+        self.recv_mtc_data()   
 
         self.remaning_tc.setText(str(secs_to_tc(86400)))
         
@@ -241,11 +371,16 @@ class GUI(QMainWindow):
         self.audio_slider.setEnabled(True)
         self.audio_output_combo_box.setEnabled(True)
         self.audio_open_button.setText("OPEN AN AUDIO FILE")
+        self.client_button.setVisible(True)
+        self.users_label.setVisible(True)
+        self.client_add_button.setEnabled(True)
         
         if self.network_is_on:
             self.set_network()
+            self.set_user_button_icon(1)
         else:
             self.connect_button.setText("START SERVER")
+            self.set_user_button_icon(0)
 
         self.ltc_pipe.send({"is_playing":False})
         self.mtc_pipe.send({"is_playing":False})
@@ -279,8 +414,9 @@ class GUI(QMainWindow):
         self.audio_slider.setEnabled(False)
         self.audio_output_combo_box.setEnabled(False)
         self.audio_open_button.setText("AUDIO PLAYER IS DISABLE IN SLAVE MODE")
-        self.users_icon.setVisible(False)
+        self.client_button.setVisible(False)
         self.users_label.setVisible(False)
+        self.client_add_button.setEnabled(False)
         
         if self.network_is_on:
             self.set_network()
@@ -291,6 +427,10 @@ class GUI(QMainWindow):
         self.mtc_pipe.send({"is_playing":True})
         self.timecode = 0
         
+        if self.users_window is not None:
+            self.users_window.close()
+            self.users_window = None
+        
     def set_network(self): #TEST
         self.set_ip()
         self.network_is_on = not self.network_is_on
@@ -298,31 +438,26 @@ class GUI(QMainWindow):
         if not self.network_is_on:
             if self.mode == "master":
                 self.connect_button.setText("START SERVER")
+                self.set_user_button_icon(1)
             elif self.mode == "slave":
                 self.connect_button.setText("CONNECT")
             self.connect_button.setStyleSheet(start_button_style)
-            self.users_icon.setVisible(False)
-            self.users_label.setVisible(False)
             self.error_label.setVisible(False)
             self.ip_1.setEnabled(True)
             self.ip_2.setEnabled(True)
             self.ip_3.setEnabled(True)
             self.ip_4.setEnabled(True)
-            self.port_input.setEnabled(True)
             
         else:
-            self.users_icon.setVisible(True)
-            self.users_label.setVisible(True)
+            self.set_user_button_icon(0)
             if not self.online and self.server_error is None:
                 self.connect_button.setText("CONNECTING")
                 self.connect_button.setStyleSheet(connecting_button_style)
-                self.users_icon.setVisible(False)
-                self.users_label.setVisible(False)
-                self.ip_1.setEnabled(False)
-                self.ip_2.setEnabled(False)
-                self.ip_3.setEnabled(False)
-                self.ip_4.setEnabled(False)
-                self.port_input.setEnabled(False)
+                if self.mode=="slave":
+                    self.ip_1.setEnabled(False)
+                    self.ip_2.setEnabled(False)
+                    self.ip_3.setEnabled(False)
+                    self.ip_4.setEnabled(False)
                 self.error_label.setVisible(False)
                 self.error_label.setText(self.server_error) 
         
@@ -344,15 +479,11 @@ class GUI(QMainWindow):
             ip4 = int(self.ip_4.text())
             self.ip_4.setText(str(ip4))
             
-            self.port = int(self.port_input.text())
-            self.port_input.setText(str(self.port))
-            
         except ValueError:
             ip1 = self.ip_1.text()
             ip2 = self.ip_2.text()
             ip3 = self.ip_3.text()
             ip4 = self.ip_4.text()
-            self.port = self.port_input.text()
 
         self.host = f"{ip1}.{ip2}.{ip3}.{ip4}"
         
@@ -407,7 +538,7 @@ class GUI(QMainWindow):
             self.ip_2.setEnabled(False)
             self.ip_3.setEnabled(False)
             self.ip_4.setEnabled(False)
-            self.port_input.setEnabled(False)
+            self.client_add_button.setEnabled(False)
             self.master_button.setEnabled(False)
             self.slave_button.setEnabled(False)
             
@@ -421,7 +552,6 @@ class GUI(QMainWindow):
             self.ip_2.setEnabled(True)
             self.ip_3.setEnabled(True)
             self.ip_4.setEnabled(True)
-            self.port_input.setEnabled(True)
             
             if self.mode == "master":
                 self.audio_frame.setEnabled(True)
@@ -432,6 +562,7 @@ class GUI(QMainWindow):
                 self.backward_button.setEnabled(True)
                 self.audio_slider.setEnabled(True)
                 self.connect_button.setEnabled(True)
+                self.client_add_button.setEnabled(True)
 
     # PLAYER BUTTONS FUNCTIONS
 
@@ -651,7 +782,33 @@ class GUI(QMainWindow):
         reply = message_box.exec_()
 
         return reply == QMessageBox.Yes
+    
+    def set_users_window(self):
+        if self.users_window is None:
+            self.users_window = UsersWindow(self)
+            self.users_window.show()
+            self.users_window.itemClicked.connect(self.remove_client)
+            self.users_window.update_lists(self.clients)
+        else:
+            self.users_window.close()
+            self.users_window = None
 
+    def is_valid_ipv4_address(ip):
+        parts = ip.split(".")
+        
+        if len(parts) != 4:
+            return False
+        
+        for part in parts:
+            try:
+                value = int(part)
+                if value < 0 or value > 255:
+                    return False
+            except ValueError:
+                return False
+        
+        return True
+    
     # ---------------- THREAD FUNCTIONS (PIPES COMUNICATION)
 
     def send_play_status(self):
@@ -672,10 +829,10 @@ class GUI(QMainWindow):
             last_gain = self.gain
             
             last_host = self.host
-            last_port = self.port
             last_network_is_on = self.network_is_on
             last_timecode = self.timecode
             last_mode = self.mode
+            last_clients = copy.deepcopy(self.clients)
             
             last_ltc_output_device = self.ltc_output_device
             last_ltc_fps = self.ltc_fps
@@ -713,11 +870,6 @@ class GUI(QMainWindow):
                     self.server_pipe.send(data_to_send)        
                     last_host = self.host
                     
-                if last_port != self.port:
-                    data_to_send['port'] = self.port
-                    self.server_pipe.send(data_to_send)         
-                    last_port = self.port
-                    
                 if last_network_is_on != self.network_is_on:
                     data_to_send['network_is_on'] = self.network_is_on
                     self.server_pipe.send(data_to_send)        
@@ -727,6 +879,11 @@ class GUI(QMainWindow):
                     data_to_send['mode'] = self.mode
                     self.server_pipe.send(data_to_send)         
                     last_mode = self.mode   
+                    
+                if last_clients != self.clients:
+                    data_to_send['clients'] = self.clients
+                    self.server_pipe.send(data_to_send)
+                    last_clients = copy.deepcopy(self.clients)  
                     
                 if last_ltc_is_on != self.ltc_is_on:
                     data_to_send['ltc_is_on'] = self.ltc_is_on
@@ -793,17 +950,13 @@ class GUI(QMainWindow):
                     
                 if 'error' in network_recv_data:
                     self.server_error = network_recv_data["error"]
-                    
-                if 'clients' in network_recv_data:
-                    self.clients = network_recv_data["clients"]
-                    
+
                 if 'timecode_recv' in network_recv_data and self.mode == "slave":
                     self.timecode = network_recv_data["timecode_recv"]
                     
                 #UPDATE VALUES
                 if 'online' in network_recv_data or 'error' in network_recv_data:
                     self.signal_object.valueChanged.emit()
-                self.users_label.setText(str(len(self.clients)))
                 
         except Exception as e:
             log(f"[ERROR GUI {inspect.currentframe().f_code.co_name}]: {e}")
@@ -857,7 +1010,7 @@ class GUI(QMainWindow):
             log(f"[ERROR GUI {inspect.currentframe().f_code.co_name}]: {e}")
 
     # ---------------- UPDATES FUNCTIONS
-            
+
     def update_tc_labels(self):
         tc = secs_to_tc(self.timecode)
         self.tc_label.setText(str(tc))
@@ -881,13 +1034,9 @@ class GUI(QMainWindow):
             
             if self.mode=="master":
                 self.connect_button.setText("SENDING")
-                self.users_icon.setVisible(True)
-                self.users_label.setVisible(True)
                 
             elif self.mode=="slave":
                 self.connect_button.setText("LISTENING")
-                self.users_icon.setVisible(False)
-                self.users_label.setVisible(False)
             self.connect_button.setStyleSheet(online_button_style)
             self.error_label.setVisible(False)
             self.error_label.setText(self.server_error)
@@ -902,11 +1051,65 @@ class GUI(QMainWindow):
                 self.connect_button.setText("ERROR")
                 self.connect_button.setStyleSheet(offline_button_style)
                 
-            self.users_icon.setVisible(False)
-            self.users_label.setVisible(False)
             self.error_label.setVisible(True)
             self.error_label.setText(self.server_error)
+
+    def update_clients_number(self):
+        users_total = str(len(self.clients))
+        self.users_label.setText(users_total)
+
+    def add_client(self):
+        try:
             
+            ip1 = int(self.ip_1.text())
+            self.ip_1.setText(str(ip1))
+            
+            ip2 = int(self.ip_2.text())
+            self.ip_2.setText(str(ip2))
+            
+            ip3 = int(self.ip_3.text())
+            self.ip_3.setText(str(ip3))
+            
+            ip4 = int(self.ip_4.text())
+            self.ip_4.setText(str(ip4))
+
+            client_ip = f"{ip1}.{ip2}.{ip3}.{ip4}"
+
+            if (0 <= ip1 <= 255) and (0 <= ip2 <= 255) and (0 <= ip3 <= 255) and (0 <= ip4 <= 255) and (client_ip not in self.clients):
+                self.clients.append(client_ip)
+                
+                if self.users_window is not None:
+                    self.users_window.update_lists(self.clients)
+                
+                self.update_clients_number()
+            
+        except ValueError:
+            return
+
+    def remove_client(self, client_index):
+        if client_index < len(self.clients):
+            self.clients.pop(client_index)
+            self.users_window.update_lists(self.clients)
+        else:
+            log(f"[ERROR GUI {inspect.currentframe().f_code.co_name}]: indice fuera de rango")
+        self.update_clients_number()
+
+    def set_user_button_icon(self,status):     
+        on_icon = QIcon(client_button_img_url)
+        off_icon = QIcon(client_button_disable_img_url)   
+        
+        if status==0:
+            self.client_button.setIcon(on_icon)
+        elif status==1:
+            self.client_button.setIcon(off_icon)
+
+##############################################
+##---------------- QOBJECTS ----------------##
+##############################################
+
+class SignalObject(QObject):
+    valueChanged = pyqtSignal()
+
 ##############################################
 ##---------------- STYLES ------------------##
 ##############################################

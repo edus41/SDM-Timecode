@@ -151,13 +151,13 @@ border-radius: 10</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QPushButton {
-    image: url(img/close.png);
+    image: url(./img/close.png);
         color: #454545;
         border: none;
         border-radius: 5px;
     }
     QPushButton:hover {
-    image: url(img/close_on.png);
+    image: url(./img/close_on.png);
     background-repeat: no-repeat;
         background-color: #202020;
 		color: #202020;
@@ -219,7 +219,7 @@ QComboBox::drop-down::pressed {
 
 
 QComboBox::down-arrow {
-    image: url(img/arrow2.png);
+    image: url(./img/arrow2.png);
     width: 10px;
 }
 
@@ -253,7 +253,7 @@ QComboBox::drop-down::disabled  {
 }
 
 QComboBox::down-arrow::disabled {
-    image: url(img/arrow_disable.png);
+    image: url(./img/arrow_disable.png);
     width: 10px;
 }
 </string>
@@ -382,54 +382,6 @@ QPushButton:disabled {
       </property>
      </widget>
     </widget>
-    <widget class="QLabel" name="users_icon">
-     <property name="geometry">
-      <rect>
-       <x>939</x>
-       <y>510</y>
-       <width>18</width>
-       <height>18</height>
-      </rect>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>18</width>
-       <height>18</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>18</width>
-       <height>18</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <family>IBM Plex Sans</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="mouseTracking">
-      <bool>false</bool>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background:#202020</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap>img/People.png</pixmap>
-     </property>
-     <property name="scaledContents">
-      <bool>true</bool>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
     <widget class="QLabel" name="users_label">
      <property name="geometry">
       <rect>
@@ -452,7 +404,7 @@ QPushButton:disabled {
 background:#202020;</string>
      </property>
      <property name="text">
-      <string>0</string>
+      <string>2/4</string>
      </property>
      <property name="scaledContents">
       <bool>true</bool>
@@ -598,7 +550,7 @@ QComboBox::drop-down::pressed {
 
 
 QComboBox::down-arrow {
-    image: url(img/arrow2.png);
+    image: url(./img/arrow2.png);
     width: 10px;
 }
 
@@ -632,7 +584,7 @@ QComboBox::drop-down::disabled  {
 }
 
 QComboBox::down-arrow::disabled {
-    image: url(img/arrow_disable.png);
+    image: url(./img/arrow_disable.png);
     width: 10px;
 }
 </string>
@@ -688,7 +640,7 @@ QComboBox::drop-down::pressed {
 
 
 QComboBox::down-arrow {
-    image: url(img/arrow2.png);
+    image: url(./img/arrow2.png);
     width: 10px;
 }
 
@@ -722,7 +674,7 @@ QComboBox::drop-down::disabled  {
 }
 
 QComboBox::down-arrow::disabled {
-    image: url(img/arrow_disable.png);
+    image: url(./img/arrow_disable.png);
     width: 10px;
 }
 </string>
@@ -1204,7 +1156,7 @@ QComboBox::drop-down::pressed {
 
 
 QComboBox::down-arrow {
-    image: url(img/arrow2.png);
+    image: url(./img/arrow2.png);
     width: 10px;
 }
 
@@ -1238,7 +1190,7 @@ QComboBox::drop-down::disabled  {
 }
 
 QComboBox::down-arrow::disabled {
-    image: url(img/arrow_disable.png);
+    image: url(./img/arrow_disable.png);
     width: 10px;
 }
 </string>
@@ -1294,7 +1246,7 @@ QComboBox::drop-down::pressed {
 
 
 QComboBox::down-arrow {
-    image: url(img/arrow2.png);
+    image: url(./img/arrow2.png);
     width: 10px;
 }
 
@@ -1328,7 +1280,7 @@ QComboBox::drop-down::disabled  {
 }
 
 QComboBox::down-arrow::disabled {
-    image: url(img/arrow_disable.png);
+    image: url(./img/arrow_disable.png);
     width: 10px;
 }
 </string>
@@ -1669,9 +1621,9 @@ QLineEdit:disabled  {
     <widget class="QLabel" name="error_label">
      <property name="geometry">
       <rect>
-       <x>749</x>
-       <y>572</y>
-       <width>211</width>
+       <x>760</x>
+       <y>573</y>
+       <width>201</width>
        <height>20</height>
       </rect>
      </property>
@@ -1886,13 +1838,13 @@ background-color: #202020;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {
-    image: url(img/close.png);
+    image: url(./img/close.png);
         color: #454545;
         border: none;
         border-radius: 5px;
     }
     QPushButton:hover {
-    image: url(img/close_on.png);
+    image: url(./img/close_on.png);
     background-repeat: no-repeat;
         background-color: #202020;
 		color: #202020;
@@ -1929,13 +1881,13 @@ background-color: #202020;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {
-    image: url(img/min.png);
+    image: url(./img/min.png);
         color: #454545;
         border: none;
         border-radius: 5px;
     }
     QPushButton:hover {
-    image: url(img/min_on.png);
+    image: url(./img/min_on.png);
     background-repeat: no-repeat;
         background-color: #202020;
 		color: #202020;
@@ -2523,7 +2475,29 @@ QPushButton:pressed {
       <enum>Qt::LeftToRight</enum>
      </property>
      <property name="styleSheet">
-      <string notr="true"/>
+      <string notr="true">QPushButton {
+    background-color: transparent;
+    color: #777777;
+    border: none;
+    border-radius: 2px;
+    text-align: right;
+    padding: 0px 0px 0px 4px;
+}
+
+QPushButton:hover {
+    background-color: transparent;
+    color: #999999;
+}
+
+QPushButton:pressed {
+    background-color: transparent;
+    color: #AAAAAA;
+    border-style: inset;
+}
+
+QPushButton:disabled {
+    color: rgba(70,70,70,50%);
+}</string>
      </property>
      <property name="text">
       <string>START SERVER</string>
@@ -2594,7 +2568,7 @@ border-radius: 6px;</string>
     <widget class="QLineEdit" name="ip_1">
      <property name="geometry">
       <rect>
-       <x>748</x>
+       <x>799</x>
        <y>552</y>
        <width>35</width>
        <height>20</height>
@@ -2643,7 +2617,7 @@ border-radius: 6px;</string>
      </property>
      <property name="geometry">
       <rect>
-       <x>788</x>
+       <x>841</x>
        <y>552</y>
        <width>35</width>
        <height>20</height>
@@ -2689,7 +2663,7 @@ border-radius: 6px;</string>
     <widget class="QLineEdit" name="ip_3">
      <property name="geometry">
       <rect>
-       <x>828</x>
+       <x>883</x>
        <y>552</y>
        <width>35</width>
        <height>20</height>
@@ -2735,7 +2709,7 @@ border-radius: 6px;</string>
     <widget class="QLineEdit" name="ip_4">
      <property name="geometry">
       <rect>
-       <x>868</x>
+       <x>925</x>
        <y>552</y>
        <width>35</width>
        <height>20</height>
@@ -2778,56 +2752,10 @@ border-radius: 6px;</string>
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLineEdit" name="port_input">
-     <property name="geometry">
-      <rect>
-       <x>908</x>
-       <y>552</y>
-       <width>51</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>IBM Plex Sans Light</family>
-       <pointsize>10</pointsize>
-       <weight>50</weight>
-       <italic>false</italic>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="cursor">
-      <cursorShape>ArrowCursor</cursorShape>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">    QLineEdit {
-    	background-color: #202020;
-        border: 1px solid #288A55;
-        border-radius: 4px;
-        color: #808080;
-    }
-
-    QLineEdit:disabled {
-    	background-color: #202020;
-        border: 1px solid #606060;
-        border-radius: 4px;
-        color: #808080;
-    }</string>
-     </property>
-     <property name="text">
-      <string>44444</string>
-     </property>
-     <property name="maxLength">
-      <number>5</number>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
     <widget class="QLabel" name="ip_dots">
      <property name="geometry">
       <rect>
-       <x>783</x>
+       <x>835</x>
        <y>555</y>
        <width>5</width>
        <height>20</height>
@@ -2852,38 +2780,10 @@ background:transparent;</string>
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="port_dots">
-     <property name="geometry">
-      <rect>
-       <x>903</x>
-       <y>551</y>
-       <width>5</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>IBM Plex Sans Medium</family>
-       <pointsize>11</pointsize>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color:#656565;
-background:transparent;</string>
-     </property>
-     <property name="text">
-      <string>:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-     </property>
-    </widget>
     <widget class="QLabel" name="ip_dots_2">
      <property name="geometry">
       <rect>
-       <x>823</x>
+       <x>877</x>
        <y>555</y>
        <width>5</width>
        <height>20</height>
@@ -2911,7 +2811,7 @@ background:transparent;</string>
     <widget class="QLabel" name="ip_dots_3">
      <property name="geometry">
       <rect>
-       <x>863</x>
+       <x>919</x>
        <y>555</y>
        <width>5</width>
        <height>20</height>
@@ -2934,6 +2834,103 @@ background:transparent;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="client_add_button">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>760</x>
+       <y>552</y>
+       <width>35</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Medium</family>
+       <pointsize>8</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+        background-color: #36BD74;
+        color: #202020;
+        border: none;
+        border-radius: 4px;
+    }
+    QPushButton:hover {
+        background-color: #225e3f;
+    }
+    QPushButton:pressed {
+        background-color: #888888;
+        border-style: inset;
+    }
+
+QPushButton:disabled {
+        background-color: #353535;
+        color: #202020;
+    }
+
+
+</string>
+     </property>
+     <property name="text">
+      <string>ADD</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="client_button">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>938</x>
+       <y>510</y>
+       <width>22</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>IBM Plex Sans Medium</family>
+       <pointsize>9</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+	background-color: transparent;
+}
+QPushButton:hover {
+	background-color: rgba(25,25,25,50%);
+	padding:5px;
+	border: none;
+	border-radius:7px;
+}
+QPushButton:pressed {
+	background-color: rgba(50,50,50,50%);
+}</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>img/People_disable.png</normaloff>img/People_disable.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>18</width>
+       <height>18</height>
+      </size>
      </property>
     </widget>
    </widget>

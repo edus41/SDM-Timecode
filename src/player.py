@@ -1,16 +1,16 @@
-from multiprocessing import Process
-import multiprocessing
-from threading import Thread
-import time
-from socket import *
-import numpy as np
-import sounddevice as sd
-from tools import *
 import os
+import time
 import datetime
 import subprocess
-import soundfile as sf
 import inspect
+import numpy as np
+import sounddevice as sd
+import soundfile as sf
+from socket import *
+from threading import Thread
+from multiprocessing import Process, current_process
+
+from tools import log
 
 ##############################################
 ##----------------- PLAYER -----------------##
@@ -257,7 +257,7 @@ class Player(Process):
             self.is_running = False
             self.is_playing = False
             self.recive_thread.join()
-            proceso_actual = multiprocessing.current_process()
+            proceso_actual = current_process()
             proceso_actual.terminate()  
         except Exception as e:
             log(f"[ERROR PLAYER {inspect.currentframe().f_code.co_name}]: {e}")

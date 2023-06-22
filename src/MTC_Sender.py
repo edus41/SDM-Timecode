@@ -1,5 +1,4 @@
-from multiprocessing import Process
-import multiprocessing
+from multiprocessing import Process, current_process
 import pygame.midi
 from tools import *
 import time
@@ -157,7 +156,7 @@ class MTC_Sender(Process):
                 self.midi_out = None
             pygame.midi.quit()
             self.recive_thread.join()
-            proceso_actual = multiprocessing.current_process()
+            proceso_actual = current_process()
             proceso_actual.terminate() 
         except Exception as e:
             log(f"[ERROR MTC {inspect.currentframe().f_code.co_name}]: {e}")

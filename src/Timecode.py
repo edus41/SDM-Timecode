@@ -1,24 +1,27 @@
-from multiprocessing import Process, Pipe
-import multiprocessing
+from multiprocessing import Process, Pipe, freeze_support
 from Network import *
-from GUI import *
-from Player import *
-from MTC_Sender import *
-from LTC_Sender import *
+from GUI import UI
+from Player import Player
+from MTC_Sender import MTC_Sender
+from LTC_Sender import LTC_Sender
+from Loading_GUI import loading_window
 
 def close(proceso):
     if proceso.is_alive():
         proceso.terminate()
         proceso.join()
-        
+    
 ##############################################
 ##------------------ MAIN ------------------##
 ##############################################
 
 if __name__ == "__main__":
-    
+
     try:
-        multiprocessing.freeze_support()
+        freeze_support()
+
+        loading_process = Process(target = loading_window)
+        loading_process.start()
             
         gui_pipe, network_pipe = Pipe()
         gui_pipe2, player_pipe = Pipe()
@@ -26,11 +29,14 @@ if __name__ == "__main__":
         gui_pipe4, ltc_pipe = Pipe()
         gui_pipe5, main_pipe = Pipe()
         
+        time.sleep(1)
+        
+        gui = Process(target = UI, args=(network_pipe, player_pipe, ltc_pipe, mtc_pipe,main_pipe))
         server = Network(gui_pipe)
         player = Player(gui_pipe2)
         mtc = MTC_Sender(gui_pipe3)
         ltc = LTC_Sender(gui_pipe4)
-        gui = Process(target = UI, args=(network_pipe, player_pipe, ltc_pipe, mtc_pipe,main_pipe))
+        
         
         server.start()
         player.start()
@@ -40,6 +46,8 @@ if __name__ == "__main__":
 
         while True:
             end = gui_pipe5.recv()
+            if "loading" in end:
+                close(loading_process)
             if "finish" in end:
                 close(server)
                 close(player)
